@@ -102,7 +102,7 @@ public class FirstPersonController : MonoBehaviour
 
   
         // move on our own
-        characterController.Move(vp_MathUtility.NaNSafeVector3(m_MoveDirection * Time.deltaTime * Time.timeScale));
+        //characterController.Move(vp_MathUtility.NaNSafeVector3(m_MoveDirection * Time.deltaTime * Time.timeScale));
 
 
 

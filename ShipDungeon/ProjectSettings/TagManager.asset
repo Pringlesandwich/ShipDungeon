@@ -7,6 +7,14 @@ TagManager:
   - Triggerer
   - Grass
   - Stone
+  - HidingSpot
+  - Door
+  - Treasure
+  - Floor
+  - Gen
+  - testing
+  - Lines
+  - MeleeBox
   layers:
   - Default
   - TransparentFX
