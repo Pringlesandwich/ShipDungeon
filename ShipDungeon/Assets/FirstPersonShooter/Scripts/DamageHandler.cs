@@ -7,10 +7,13 @@ public class DamageHandler : MonoBehaviour {
 
 
     public float health;
+    private float maxHealth;
 
     private float launchMulitplyer = 1;
 
     private bool dead = false;
+
+    private bool canLifeSteal = true;
 
     public Image healthBar;
     public Image oxygenBar;
@@ -23,6 +26,36 @@ public class DamageHandler : MonoBehaviour {
     private void Start()
     {
         deltaOxygen = oxygen;
+        maxHealth = health;
+    }
+
+    public bool GetLifeSteal()
+    {
+        if (dead && canLifeSteal)
+        {
+            canLifeSteal = false;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private void SetHealthBar()
+    {
+        try
+        {
+            if (health > 0)
+            {
+                healthBar.fillAmount = (health / 100.0f);
+            }
+            else
+            {
+                healthBar.fillAmount = 0;
+            }
+        }
+        catch { }
     }
 
     private void Update()
@@ -60,23 +93,15 @@ public class DamageHandler : MonoBehaviour {
             catch { }
 
             //health bar
-            try
+            if (healthBar != null)
             {
-                if (health > 0)
-                {
-                    healthBar.fillAmount = (health / 100.0f);
-                }
-                else
-                {
-                    healthBar.fillAmount = 0;
-                }
+                SetHealthBar();
             }
-            catch { }
 
             if (health <= 0)
             {
                 //Destroy(this.gameObject);
-                Debug.Log(this.name + " Is Dead");
+                //Debug.Log(this.name + " Is Dead");
                 launchMulitplyer = 5;
                 dead = true;
                 try
@@ -91,6 +116,7 @@ public class DamageHandler : MonoBehaviour {
                     controller.Kill();
                 }
                 catch { }
+                StartCoroutine(stopLifeSteal());
             }
         }
 
@@ -122,7 +148,25 @@ public class DamageHandler : MonoBehaviour {
 
     }
 
+    IEnumerator stopLifeSteal()
+    {
+        yield return new WaitForSeconds(0.5f);
+        canLifeSteal = false;
+    }
 
+    public void Heal(float amount)
+    {
+        health = health + amount;
+        if(health > maxHealth)
+        {
+            health = maxHealth;
+        }
+        //health bar
+        if (healthBar != null)
+        {
+            SetHealthBar();
+        }
+    }
 
 
 }

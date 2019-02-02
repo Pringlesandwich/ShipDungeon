@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Prims {
 
@@ -12,12 +13,35 @@ public class Prims {
     private List<Edge> edgesInTree = new List<Edge>();
     private List<VertexNode> nodesInTree = new List<VertexNode>();
 
+    private List<Edge> finalPrimList = new List<Edge>();
+
     public void Update()
     {
+        //int count = 0;
+        bool flipFlop = false;
+        //int count = 0;
         foreach (Edge aEdge in edgesInTree)
         {
-            aEdge.drawEdge();
+            if (flipFlop) // stops double lines being drawn!
+            {
+                //count++;
+                aEdge.drawEdge();
+                aEdge.makeIsPrims();
+                finalPrimList.Add(aEdge); // did this to simplify logic
+            }
+            flipFlop = !flipFlop;
         }
+        //Debug.Log("QSASADQQQQQQ " + count);
+
+        var toRemove = allEdges.Where(x => x.getIsPrims() == false);
+
+        foreach (var x in toRemove)
+        {
+            x.stopDraw();
+        }
+
+
+        //Debug.Log("JHASDKAJSHDA: " + count);
     }
 
     public void setUpPrims(List<VertexNode> _verticies, List<Edge> _edges)
@@ -67,25 +91,24 @@ public class Prims {
 
         startPrims();
 
-        List<Edge> poolList = new List<Edge>();
 
-        foreach (Edge edges in allEdges)
-        {
-            if (!edgesInTree.Contains(edges))
-            {
-                poolList.Add(edges);
-            }
-        }
+        //RNG - keep random edges
 
-        int perc = (poolList.Count * 10) / 100;
-
-        for (int i = 0; i < perc; i++)
-        {
-            int index = Random.Range(0, poolList.Count);
-
-            edgesInTree.Add(poolList[index]);
-            poolList.RemoveAt(index);
-        }
+        //List<Edge> poolList = new List<Edge>();
+        //foreach (Edge edges in allEdges)
+        //{
+        //    if (!edgesInTree.Contains(edges))
+        //    {
+        //        poolList.Add(edges);
+        //    }
+        //}
+        //int perc = 0;// (poolList.Count * 10) / 100;
+        //for (int i = 0; i < perc; i++)
+        //{
+        //    int index = Random.Range(0, poolList.Count);
+        //    edgesInTree.Add(poolList[index]);
+        //    poolList.RemoveAt(index);
+        //}
     }
 
     private void startPrims()
@@ -168,5 +191,10 @@ public class Prims {
     public List<Edge> getConnections()
     {
         return edgesInTree;
+    }
+
+    public List<Edge> getFinalConnections()
+    {
+        return finalPrimList;
     }
 }

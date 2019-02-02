@@ -46,24 +46,30 @@ public class DungeonGenerator : MonoBehaviour {
 
     LineRenderer lineRender = new LineRenderer();
 
-    class Grid
-    {
-        public int x, y;
-        //public string type;
-        public Grid(int deltaX, int deltaY)//, string deltaType)
-        {
-            x = deltaX;
-            y = deltaY;
-            //type = deltaType;
-        }
-    }
+    bool isFinished = false;
+    private bool DTFinished = false;
+
+
+    //---------------------------------------//
+    // SO FAR...
+    //      - GenRooms()
+    //      - SeperateRooms()
+    //      - SetRooms()
+    //      - DTTime = true;
+    //      - Update()
+    //          - theDTController.setupTriangulation(roomList);
+    //          - theDTController.Update(); - this does the triangulation
+    //          - thePrimController.setUpPrims(roomList, theDTController.getTriangulation()); - does the maths
+    //          - thePrimController.Update(); - draws the edges
+    //          - LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
+
+
+
 
     // Use this for initialization
     void Start()
-    {
-        
+    {       
         //line.SetVertexCount(2);
-
         // instantiate all the rooms, make sure to do this in a 1 tile setting!!!
         // call Addtiles method with a random x and z value
         if (iterate)
@@ -74,18 +80,8 @@ public class DungeonGenerator : MonoBehaviour {
         {
             GenRoomslol();
             SeperateRoomslol();
-            //RemoveIntersecting(); // instead i need a mthod that pushes all away from 0 so none need deleting!!!
-            //ColourMainRooms();
-            //TriangulateAllRooms();
-            //StartCoroutine(TriangulateAllRoomslol());
-
-            //DelaunayTriangulation();
             setRooms();
-
             DTTime = true;
-
-            //maybe colourmain rooms after???
-
         }     
     }
 
@@ -98,8 +94,6 @@ public class DungeonGenerator : MonoBehaviour {
             roomList.Add(thisNode);
         }
     }
-
-
 
     struct Branch
     {
@@ -164,7 +158,6 @@ public class DungeonGenerator : MonoBehaviour {
 
 
     }
-
 
     IEnumerator GenRooms()
     {
@@ -265,9 +258,14 @@ public class DungeonGenerator : MonoBehaviour {
     IEnumerator SeperateRooms()
     {
         GO = GameObject.FindGameObjectsWithTag("Gen");
+
+        int count = 0;
+
         for (int i = 0; i < MaxAttempts; i++)
         {
-            int count = 0;
+
+            count = 0;
+
             foreach (GameObject a in GO)
             {
                 foreach (GameObject b in GO)
@@ -318,14 +316,18 @@ public class DungeonGenerator : MonoBehaviour {
                 break;
             }
         }
+        if(count > 0)
+        {
+            //the map has not finished due to a collision conflict (bad programming)
+            //restart the build!
+        }
 
         setRooms();
 
         DTTime = true;
 
-        ColourMainRooms();
+        //ColourMainRooms();
     }
-
 
     private Vector3 FindMoveDiection(Vector3 input)
     {
@@ -335,7 +337,6 @@ public class DungeonGenerator : MonoBehaviour {
         //Debug.Log("X: " + input.x + " Y: " + input.z);
         return input;
     }
-
 
     private void RemoveIntersecting()
     {
@@ -413,7 +414,6 @@ public class DungeonGenerator : MonoBehaviour {
         Debug.Log("Remove Count: " + removeCount);
     }
 
-
     private void ColourMainRooms()
     {
         float avgSize = 0;
@@ -462,7 +462,6 @@ public class DungeonGenerator : MonoBehaviour {
         GetStartRoom();
     }
 
-
     private GameObject GetStartRoom()
     {
         float furthestDistance = 0;
@@ -483,11 +482,7 @@ public class DungeonGenerator : MonoBehaviour {
         return selected;
     }
 
-
-    bool isFinished = false;
-    private bool DTFinished = false;
-
-        // Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
         //if(Input.GetKeyDown(KeyCode.R))
@@ -495,11 +490,11 @@ public class DungeonGenerator : MonoBehaviour {
         //    GenDungeon();
         //}
 
-        if(moveRooms)
-        {
-            MoveRooms();
-            moveRooms = false;
-        }
+        //if(moveRooms)
+        //{
+        //    MoveRooms();
+        //    moveRooms = false;
+        //}
 
         if (DTTime)
         {
@@ -689,7 +684,6 @@ public class DungeonGenerator : MonoBehaviour {
         Debug.Log(destroyCount);
     }
 
-
     private void GenDungeon()
     {
         //make this number of rooms
@@ -708,24 +702,11 @@ public class DungeonGenerator : MonoBehaviour {
         moveRooms = false;
     }
 
-
-    //function getRandomPointInCircle(radius)
-    //    local t = 2 * math.pi * math.random()
-    //    local u = math.random() + math.random()
-    //    local r = nil
-    //    if u > 1 then r = 2 - u else r = u end
-    //    return radius* r*math.cos(t), radius* r*math.sin(t)
-    //end
-
-    //-- Now we can change the returned value from getRandomPointInCircle to:
-
-    //function getRandomPointInCircle(radius)
-    //  
-    //  return roundm(radius* r*math.cos(t), tile_size), 
-    //         roundm(radius* r*math.sin(t), tile_size)
-    //end
     private Vector2 GetRandomPointInCircle(float radius)
     {
+        //for other methods, see notes at bottom!!!!!!!!!!!!!!!!!
+
+
         //circle
         //var angle = Random.value * (Mathf.PI * 2);
         //var radius2 = Mathf.Sqrt(Random.value) * radius;
@@ -750,14 +731,10 @@ public class DungeonGenerator : MonoBehaviour {
         return new Vector2(x, y);
     }
 
-    //function 
-    //    roundm(n, m) return math.floor(((n + m - 1)/m))*m 
-    //end
     private int RoundToGrid(float pos, float grid)
     {
         return Mathf.RoundToInt(Mathf.Floor((pos + grid - 1) * grid));
     }
-
 
     private Vector2 GetRandomRoomSize()
     {
@@ -766,18 +743,12 @@ public class DungeonGenerator : MonoBehaviour {
         return new Vector2(x, y);
     }
 
-
-
-
-
     private void TriangulateAllRooms()
     {
         Vector3 A = new Vector3();
         Vector3 B = new Vector3();
         int count = -1;
         var points = new Vector3[200];
-
-        
 
         lineRender = new LineRenderer();
         lineRender = this.gameObject.AddComponent<LineRenderer>();
@@ -947,7 +918,41 @@ public class DungeonGenerator : MonoBehaviour {
 
 
 
-
-
-
 }
+
+
+
+
+
+//NOTES---------------------------------------
+
+//class Grid
+//{
+//    public int x, y;
+//    //public string type;
+//    public Grid(int deltaX, int deltaY)//, string deltaType)
+//    {
+//        x = deltaX;
+//        y = deltaY;
+//        //type = deltaType;
+//    }
+//}
+
+
+
+
+//function getRandomPointInCircle(radius)
+//    local t = 2 * math.pi * math.random()
+//    local u = math.random() + math.random()
+//    local r = nil
+//    if u > 1 then r = 2 - u else r = u end
+//    return radius* r*math.cos(t), radius* r*math.sin(t)
+//end
+
+//-- Now we can change the returned value from getRandomPointInCircle to:
+
+//function getRandomPointInCircle(radius)
+//  
+//  return roundm(radius* r*math.cos(t), tile_size), 
+//         roundm(radius* r*math.sin(t), tile_size)
+//end

@@ -459,7 +459,7 @@ MonoBehaviour:
   rateOfFire: 0.75
   reactionTime: 0.5
   stunLockChance: 100
-  stunTime: 0.5
+  stunTime: 1
   gun: {fileID: 114209890028573316}
   cam: {fileID: 0}
 --- !u!136 &136679750125618246

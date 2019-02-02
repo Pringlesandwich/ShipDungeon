@@ -21,25 +21,13 @@ public class ConvertToLayout {
 
     public ConvertToLayout(List<VertexNode> _roomList, GameObject _startRoom, Prims thePrimController)
     {
-
         target = _startRoom;
 
-        //List<Edge> test = thePrimController.getConnections();
-        //List<Edge> toDelete = new List<Edge>();
+        List<Edge>  primsList = thePrimController.getFinalConnections();
 
-        List<Edge> primsList = new List<Edge>();
+        Debug.Log("PrimList Count: " + primsList.Count);
 
-        //Debug.Log("AHTESTING " + test.Count);
-
-        foreach (Edge i in thePrimController.getConnections())
-        {
-            if ((i.getNode0().getVertexPosition() != Vector3.zero && i.getNode1().getVertexPosition() != Vector3.zero) && i.getIsPrims() == true)
-            {
-                primsList.Add(i);
-            }
-        }
-
-        Debug.Log("PrimList    " + primsList.Count);
+        //Debug.Log("PrimList    " + primsList.Count);
 
         foreach (VertexNode aNode in _roomList)
         {
@@ -97,7 +85,7 @@ public class ConvertToLayout {
                 if (target == aEdge.getNode0().getParentCell())
                 {
 
-                    Debug.Log("for loop " + i);
+                    //Debug.Log("for loop " + i);
                     //int bugCount = 0;
                     try
                     {

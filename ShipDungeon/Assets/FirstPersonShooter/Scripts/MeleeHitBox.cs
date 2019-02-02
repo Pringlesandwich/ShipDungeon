@@ -23,7 +23,7 @@ public class MeleeHitBox : MonoBehaviour {
         //if in list then remove from list
         if(targets.Any(x => x.gameObject == other.gameObject))
         {
-            Debug.Log("Removed: " + other.gameObject.name);
+            //Debug.Log("Removed: " + other.gameObject.name);
             targets.Remove(other.gameObject);
         }
     }

@@ -419,7 +419,7 @@ public class DTController {
 
     private void trigDone()
     {
-        Debug.Log("DONE!");
+        //Debug.Log("DONE!");
         isDone = true;
         constructFinal();
     }

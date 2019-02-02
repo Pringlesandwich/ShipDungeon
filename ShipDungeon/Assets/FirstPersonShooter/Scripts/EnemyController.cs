@@ -13,6 +13,10 @@ public class EnemyController : FPSController {
 
     public bool isAgro = false;
 
+    private bool isStunned = false;
+
+    private bool isRetreating = false;
+
     private bool isAlive = true;
 
     private bool canSeePlayer = false;
@@ -61,7 +65,7 @@ public class EnemyController : FPSController {
         //Debug.Log(distance);
 
         //has been activated
-        if (isAgro && isAlive)
+        if (isAgro && isAlive && canFire)
         {
             //get within range
             if (distance > maxDistance)
@@ -70,7 +74,7 @@ public class EnemyController : FPSController {
                 agent.SetDestination(target.position);
             }
             //if too close run away
-            else if (distance < minDistance)
+            else if (distance < minDistance && !isStunned)
             {
                 //move away
                 Vector3 destination = this.transform.position - target.transform.position;
@@ -124,7 +128,6 @@ public class EnemyController : FPSController {
         Fire();
     }
 
-
     //prototype
     private void FindHidingSpot()
     {
@@ -163,7 +166,7 @@ public class EnemyController : FPSController {
             if (Physics.Raycast(cam.transform.position, rayTarget, out hit))
             {
                 //if can see player and alive
-                if (isAlive && hit.collider.gameObject.CompareTag("Player")) // i dont want to use tags but good for now
+                if (isAlive && hit.collider.gameObject.CompareTag("Player")) // i dont want to use tags but good for now - actually tags are good????
                 {
                     canSeePlayer = true;
                     if (willFire)
@@ -178,21 +181,27 @@ public class EnemyController : FPSController {
     }
 
 
-
     public void Hit()
     {
         //change emmision color, makes enemy flash white
-        emmisionColor = Color.white;
-
+        emmisionColor = Color.white;  
         //stun
         float deltaStun = UnityEngine.Random.Range(0.0f, 100.0f);
         if(deltaStun <= stunLockChance)
         {
+            isStunned = true;
             newStunTime = stunTime;
             canFire = false;
+            StartCoroutine(stunCooldown());
         }
+
     }
 
+    IEnumerator stunCooldown()
+    {
+        yield return new WaitForSeconds(newStunTime);
+        isStunned = false;
+    }
    
     //prototype
     public override void Kill()

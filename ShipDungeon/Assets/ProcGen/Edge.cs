@@ -94,18 +94,23 @@ public class Edge {
         {
             //theLine.renderer.material.color = theDrawColor;
             theLine.material = new Material(Shader.Find("Particles/Additive"));
-            isPrims = true;
+            //isPrims = true;
         }
     }
 
     public bool getIsPrims()
     {
-        if(theDrawColor.r == 0 && theDrawColor.g == 255 && theDrawColor.b == 0)
-        {
-            return true;
-        }
-        else { return false; }
-        //return isPrims;
+        //if(theDrawColor.r == 0 && theDrawColor.g == 255 && theDrawColor.b == 0)
+        //{
+        //    return true;
+        //}
+        //else { return false; }
+        return isPrims;
+    }
+
+    public void makeIsPrims()
+    {
+        isPrims = true;
     }
 
     public void stopDraw()

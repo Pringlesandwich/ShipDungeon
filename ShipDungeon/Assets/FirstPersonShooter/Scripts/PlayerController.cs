@@ -85,10 +85,13 @@ public class PlayerController : FPSController {
     private int debugCount = 0;
 
 
-
     //melee prototype
     private Melee melee;
+    bool canMelee = true;
+    bool isMelee = false;
+    public Animation meleeAnimation;
     
+
     public void Start()
     {
         Motor = GetComponent<CharacterMotor>();
@@ -96,7 +99,11 @@ public class PlayerController : FPSController {
         playerCam = GetComponent<PlayerCamera>();
         sphereCastHeight = (characterController.height / 2) - 0.1f;
         try { gun = GetComponentInChildren<Gun>(); } catch { }
-        try { melee = GetComponent<Melee>(); } catch { }
+        try {
+            melee = GetComponent<Melee>();
+            meleeAnimation["MeleeSwingAnimation"].time = 0.35f;
+            meleeAnimation.Play("MeleeSwingAnimation");
+        } catch { }
     }
 
     public void Update()
@@ -122,17 +129,27 @@ public class PlayerController : FPSController {
 
         //Melee Prototype
         if (Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            
-            if (melee)
+        {          
+            if (melee && canMelee)
             {
+                meleeAnimation.Play();
                 //Debug.Log("RightClick!");
                 melee.attack();
+                StartCoroutine(MeleeCooldown());
             }
         }
 
 
     }
+
+    //Melee Prototype
+    IEnumerator MeleeCooldown()
+    {
+        canMelee = false;
+        yield return new WaitForSeconds(0.8f);
+        canMelee = true;
+    }
+
 
     //handles the raw vector3 that is passed onto the motor
     public void PlayerMove()
@@ -245,7 +262,7 @@ public class PlayerController : FPSController {
 
     private void Fire()
     {
-        if(Input.GetKey(KeyCode.Mouse0))
+        if(Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (gun.TryFire())
             {

@@ -57,6 +57,11 @@ public class Melee : MonoBehaviour {
         { 
             DH = i.GetComponent<DamageHandler>();
             DH.Damage(damage, this.transform.position);
+            if (DH.GetLifeSteal())
+            {
+                DamageHandler playerDH = this.GetComponent<DamageHandler>();
+                playerDH.Heal(15); // TODO - create a heal function in DH
+            }
         }
 
         yield return new WaitForSeconds(cooldown - timeTillHit);
