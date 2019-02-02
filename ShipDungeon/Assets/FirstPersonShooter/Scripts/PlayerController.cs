@@ -116,7 +116,6 @@ public class PlayerController : FPSController {
 
         PlayerMove();
         
-
         TiltCamera();
 
         //PlayerBoost(); // not happy, moving on for now
@@ -124,7 +123,6 @@ public class PlayerController : FPSController {
         PlayerJump();
 
         Fire();
-
 
 
         //Melee Prototype

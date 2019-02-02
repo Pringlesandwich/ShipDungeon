@@ -62,6 +62,8 @@ public class DungeonGenerator : MonoBehaviour {
     //          - thePrimController.setUpPrims(roomList, theDTController.getTriangulation()); - does the maths
     //          - thePrimController.Update(); - draws the edges
     //          - LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
+    //
+    //---------------------------------------//
 
 
 
@@ -538,12 +540,14 @@ public class DungeonGenerator : MonoBehaviour {
                 }
                 else if(!LayoutFinished)
                 {
-                    //ConverToLayout
+                    Debug.Log(LayoutFinished);
 
                     GameObject startRoom = GetStartRoom();
 
-                    LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
                     LayoutFinished = true;
+
+                    LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
+                    
                 }
             }
         }
@@ -915,7 +919,6 @@ public class DungeonGenerator : MonoBehaviour {
     //    Gizmos.DrawLine(from, to);
     //    Debug.Log("DONE!");
     //}
-
 
 
 }

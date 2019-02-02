@@ -30,13 +30,15 @@ public class DungeonRoom : MonoBehaviour {
         branches.Add(g);
     }
 
-
+    public List<GameObject> GetBranchList()
+    {
+        return branches;
+    }
 
 
 	// Use this for initialization
 	void Start () {
-        //GO = GameObject.FindGameObjectsWithTag("Gen");  
-        //var a = this.GetComponent<BoxCollider>();
+
 
 
 
@@ -52,18 +54,6 @@ public class DungeonRoom : MonoBehaviour {
 
     }
 
-    public void CreateLines()
-    {
-        GO = GameObject.FindGameObjectsWithTag("Gen");
-        foreach(var g in GO)
-        {
-            if(g != this.gameObject)
-            {
-
-            }
-        }
-
-    }
 
 
 	// Update is called once per frame
