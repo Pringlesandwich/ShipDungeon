@@ -49,12 +49,16 @@ public class DungeonGenerator : MonoBehaviour {
     bool isFinished = false;
     private bool DTFinished = false;
 
+    private bool allFinished = false;
+    public LayoutController theLayoutController;
+    private List<DungeonRoom> dungeonRooms = new List<DungeonRoom>();
 
     //---------------------------------------//
     // SO FAR...
     //      - GenRooms()
     //      - SeperateRooms()
     //      - SetRooms()
+    //  - the three above can be moved to a roomController????
     //      - DTTime = true;
     //      - Update()
     //          - theDTController.setupTriangulation(roomList);
@@ -170,6 +174,11 @@ public class DungeonGenerator : MonoBehaviour {
             int y = RoundToGrid(delta.y, gridSpacing);
             delta = GetRandomRoomSize();
             var newFloor = Instantiate(floor, new Vector3(x, 0, y), Quaternion.identity);
+            DungeonRoom DR = newFloor.GetComponent<DungeonRoom>();
+            DR.ID = i + 1; // set id (from 0+1)
+            DR.sizeX = Mathf.RoundToInt(delta.x * 2);
+            DR.sizeZ = Mathf.RoundToInt(delta.y * 2);
+            dungeonRooms.Add(DR);
             //newFloor.transform.localScale = new Vector3(((delta.x * gridSpacing) - 0.1f), 1, ((delta.y * gridSpacing) - 0.1f));
             //newFloor.transform.localScale = new Vector3((delta.x * gridSpacing), 1, (delta.y * gridSpacing));
             newFloor.transform.localScale = new Vector3((delta.x * 2) - 0.1f, 1, (delta.y * 2) - 0.1f);
@@ -248,8 +257,9 @@ public class DungeonGenerator : MonoBehaviour {
             var newFloor = Instantiate(floor, new Vector3(x, 0, y), Quaternion.identity);
             DungeonRoom DR = newFloor.GetComponent<DungeonRoom>();
             DR.ID = i +1; // set id (from 0+1)
-            DR.sizeX = Mathf.RoundToInt(delta.x);
-            DR.sizeZ = Mathf.RoundToInt(delta.y);
+            DR.sizeX = Mathf.RoundToInt(delta.x * 2);
+            DR.sizeZ = Mathf.RoundToInt(delta.y * 2);
+            dungeonRooms.Add(DR);
             //newFloor.transform.localScale = new Vector3(((delta.x * gridSpacing) - 0.1f), 1, ((delta.y * gridSpacing) - 0.1f));
             //newFloor.transform.localScale = new Vector3((delta.x * gridSpacing), 1, (delta.y * gridSpacing));
             newFloor.transform.localScale = new Vector3((delta.x * 2) - 0.1f, 1, (delta.y * 2) - 0.1f);
@@ -548,6 +558,12 @@ public class DungeonGenerator : MonoBehaviour {
 
                     LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
                     
+                }
+                else if(!allFinished)
+                {
+                    allFinished = true;
+                    theLayoutController.setRooms(dungeonRooms);
+
                 }
             }
         }

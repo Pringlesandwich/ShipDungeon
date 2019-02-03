@@ -26,7 +26,7 @@ public class ConvertToLayout {
     public ConvertToLayout(List<VertexNode> _roomList, GameObject _startRoom, Prims thePrimController)
     {
         startMat =  new Material(Shader.Find("Particles/Additive"));
-        startMat.color = Color.green;
+        startMat.color = Color.red;
 
         target = _startRoom;
 
@@ -106,6 +106,7 @@ public class ConvertToLayout {
 
     public void MakeMap()
     {
+
 
         //********Make Corridors********//
 

@@ -4,25 +4,21 @@ using UnityEngine;
 
 public class DungeonRoom : MonoBehaviour {
 
-    GameObject[] GO;
-    //public int strength;
-
-    //public bool isColliding;
-
+    //all these can be made private with setters please
     public int ID = 0;
-
     public int sizeX = 0;
     public int sizeZ = 0;
-
     public bool isMain = false;
-
     public bool edgesComplete = false;
 
+
     public List<GameObject> branches = new List<GameObject>();
+
 
     //hold locked door data
 
     //hold key data
+
 
     //add a branch from ConvertToLayout, this will allow corridor creation as well as locked doors potentially
     public void AddBranch(GameObject g)
@@ -36,23 +32,11 @@ public class DungeonRoom : MonoBehaviour {
     }
 
 
-	// Use this for initialization
-	void Start () {
 
 
+    
 
 
-
-    }
-	
-    public void AddTitles(int x, int z)
-    {
-
-
-
-        
-
-    }
 
 
 
