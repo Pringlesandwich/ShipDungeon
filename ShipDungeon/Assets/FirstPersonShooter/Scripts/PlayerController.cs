@@ -260,7 +260,7 @@ public class PlayerController : FPSController {
 
     private void Fire()
     {
-        if(Input.GetKeyDown(KeyCode.Mouse0))
+        if(Input.GetKey(KeyCode.Mouse0))
         {
             if (gun.TryFire())
             {

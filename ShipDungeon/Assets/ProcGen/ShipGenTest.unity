@@ -512,7 +512,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33cd3b9d27da15429e612ab9c5fee4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 9
+  Radius: 7
   gridSpacing: 1
   minRoomSize: 3
   maxRoomSize: 5
