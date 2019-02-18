@@ -23,6 +23,7 @@ public class ConvertToLayout {
 
     List<GameObject> stepRoomList = new List<GameObject>();
 
+    //
     public ConvertToLayout(List<VertexNode> _roomList, GameObject _startRoom, Prims thePrimController)
     {
         startMat =  new Material(Shader.Find("Particles/Additive"));
@@ -110,26 +111,26 @@ public class ConvertToLayout {
 
         //********Make Corridors********//
 
-        //go through each room
-        foreach (var room in roomList)
-        {
-            var currentRoom = room.GetComponent<DungeonRoom>();
+        ////go through each room
+        //foreach (var room in roomList)
+        //{
+        //    var currentRoom = room.GetComponent<DungeonRoom>();
 
-            //for each branch
-            foreach (var target in currentRoom.GetBranchList())
-            {
-                //see if they have a common axis 
-                //x - left/right
-                //z - up/down
-                    //make that part of this room have a door in that axis
+        //    //for each branch
+        //    foreach (var target in currentRoom.GetBranchList())
+        //    {
+        //        //see if they have a common axis 
+        //        //x - left/right
+        //        //z - up/down
+        //            //make that part of this room have a door in that axis
                 
 
-                //else
-                //create
+        //        //else
+        //        //create
                 
             
-            }
-        }
+        //    }
+        //}
 
     }
 

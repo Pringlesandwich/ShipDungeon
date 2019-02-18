@@ -38,7 +38,7 @@ public class DungeonGenerator : MonoBehaviour {
     private Prims thePrimController = new Prims();
     private bool PrimFinished = false;
 
-    private ConvertToLayout LayoutController;// = new ConvertToLayout();
+    private ConvertToLayout ConvertLayoutController;// = new ConvertToLayout();
     private bool LayoutFinished = false;
 
     //List of cells that have been turned into rooms
@@ -49,8 +49,8 @@ public class DungeonGenerator : MonoBehaviour {
     bool isFinished = false;
     private bool DTFinished = false;
 
-    private bool allFinished = false;
-    public LayoutController theLayoutController;
+    private bool prepFinished = false;
+    public LayoutController LayoutController;
     private List<DungeonRoom> dungeonRooms = new List<DungeonRoom>();
 
     //---------------------------------------//
@@ -512,59 +512,40 @@ public class DungeonGenerator : MonoBehaviour {
         {
             if (!isFinished)
             {
-                //Debug.Log("HAYYYYYYY GUURRLLLLL");
-                //turn large cells into rooms;
-                //setRooms();
-
-                //initalize the triangulation
-
                 theDTController.setupTriangulation(roomList);
 
                 isFinished = true;
             }
-            else
+            else if (!DTFinished)
             {
-                if (!DTFinished)
+
+                if (!theDTController.getDTDone())
                 {
-
-                    if (!theDTController.getDTDone())
-                    {
-                        theDTController.Update();
-                    }
-                    else
-                    {
-                        DTFinished = true;
-                        thePrimController.setUpPrims(roomList, theDTController.getTriangulation());
-                    }
+                    theDTController.Update();
                 }
-                else if(!PrimFinished)
+                else
                 {
-                    //if (!PrimFinished)
-                    //{
-                   
-                    thePrimController.Update();
-                    PrimFinished = true;
-
-                    //thePrimController.stopEdgeDraw();
-                    //}
+                    DTFinished = true;
+                    thePrimController.setUpPrims(roomList, theDTController.getTriangulation());
                 }
-                else if(!LayoutFinished)
-                {
-                    Debug.Log(LayoutFinished);
+            }
+            else if (!PrimFinished)
+            {
+                thePrimController.Update();
+                PrimFinished = true;
+            }
+            else if (!LayoutFinished)
+            {         
+                GameObject startRoom = GetStartRoom(); // find start room (furthest from center)
 
-                    GameObject startRoom = GetStartRoom();
+                LayoutFinished = true;
+                ConvertLayoutController = new ConvertToLayout(roomList, startRoom, thePrimController); // connecting all rooms in order
 
-                    LayoutFinished = true;
-
-                    LayoutController = new ConvertToLayout(roomList, startRoom, thePrimController);
-                    
-                }
-                else if(!allFinished)
-                {
-                    allFinished = true;
-                    theLayoutController.setRooms(dungeonRooms);
-
-                }
+            }
+            else if (!prepFinished)
+            {
+                prepFinished = true;
+                LayoutController.SetGrid(dungeonRooms); //convert rooms to a grid
             }
         }
     }

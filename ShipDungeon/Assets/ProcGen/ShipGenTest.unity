@@ -525,7 +525,7 @@ MonoBehaviour:
   newMat: {fileID: 2100000, guid: 68e3a8437f5dbe5419332589bc00fc7b, type: 2}
   startMat: {fileID: 2100000, guid: 834ce3439063ba848888cbbd25c4bb35, type: 2}
   strenght2: 5
-  theLayoutController: {fileID: 447750817}
+  LayoutController: {fileID: 447750817}
 --- !u!4 &447750816
 Transform:
   m_ObjectHideFlags: 0
@@ -551,7 +551,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testFloor: {fileID: 1307959886030492, guid: ee252dd97119baa4dab90e77b9725f9d, type: 2}
-  testWall: {fileID: 1112646571236668, guid: 1511a60c3fe94aa47b992426eacc4bbe, type: 2}
+  testWall: {fileID: 1666506612271864, guid: c50b82d44572cf84ea790446d12cdcc0, type: 2}
+  testDoor: {fileID: 1103060612156214, guid: cf042ac052e14ab46b1e553387a6cbe8, type: 2}
   iterate: 0
 --- !u!4 &470243231 stripped
 Transform:

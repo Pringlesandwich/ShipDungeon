@@ -118,7 +118,7 @@ public class PlayerController : FPSController {
         
         TiltCamera();
 
-        //PlayerBoost(); // not happy, moving on for now
+        PlayerBoost(); // not happy, moving on for now
 
         PlayerJump();
 
@@ -287,8 +287,20 @@ public class PlayerController : FPSController {
     {
         if(Input.GetKeyDown(KeyCode.LeftShift)) // change this to an input
         {
-            if(inputLeft) { Motor.Boost(-boostSpeed); }
-            if(inputRight) { Motor.Boost(boostSpeed); }
+
+            //if (Input.GetKey(KeyCode.D))
+            //{
+            //    Motor.Boost(boostSpeed);
+            //}
+            //else if (Input.GetKey(KeyCode.A))
+            //{
+            //    Motor.Boost(-boostSpeed);
+            //}
+
+
+            //Debug.Log("BOOST!");
+            //if (inputLeft) { Motor.Boost(-boostSpeed); }
+            //if(inputRight) { Motor.Boost(boostSpeed); }
         }
     }
 
