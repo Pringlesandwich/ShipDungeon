@@ -324,7 +324,7 @@ public class DungeonGenerator : MonoBehaviour {
             }
             if (count == 0)
             {
-                Debug.Log("WOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                Debug.Log("FINISHED SEPERATEING ROOMS");
                 break;
             }
         }

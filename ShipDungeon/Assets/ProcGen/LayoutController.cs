@@ -91,7 +91,8 @@ public class LayoutController : MonoBehaviour {
 
         foreach (var i in _dungeonRooms)
         {
-            xStart = i.transform.position.x - ((i.sizeX / 2) + 0.5f);
+            // start on + 0.5 instead of minus as it will + 1 at start
+            xStart = i.transform.position.x - ((i.sizeX / 2) + 0.5f); 
             zStart = i.transform.position.z - ((i.sizeZ / 2) + 0.5f);
             var zRestart = zStart;
 
@@ -101,24 +102,22 @@ public class LayoutController : MonoBehaviour {
             wallWest = false;
 
             for (var x = 0; x < i.sizeX; x++)
-            {
-                xStart = xStart + 1;
+            {           
                 zStart = zRestart;
-
-                //this isnt a great method....
+                //can be refractured into some sort of bool class
                 if(x == 0)
                 {
                     wallNorth = false;
-                    wallEast = true;
+                    wallEast = false;
                     wallSouth = false;                 
-                    wallWest = false;
+                    wallWest = true;
                 }
                 else if(x == i.sizeX - 1)
                 {
                     wallNorth = false;
-                    wallEast = false;
+                    wallEast = true;
                     wallSouth = false;
-                    wallWest = true;
+                    wallWest = false;
                 }
                 else
                 {
@@ -128,28 +127,24 @@ public class LayoutController : MonoBehaviour {
                     wallWest = false;
                 }
 
+                xStart = xStart + 1;
+
                 for (var z = 0; z < i.sizeZ; z++)
                 {
                     if (z == 0)
                     {
                         wallNorth = false;
-                        //wallEast = false;
                         wallSouth = true;
-                        //wallWest = false;
                     }
                     else if (z == i.sizeZ - 1)
                     {
                         wallNorth = true;
-                        //wallEast = false;
                         wallSouth = false;
-                        //wallWest = false;
                     }
                     else
                     {
                         wallNorth = false;
-                        //wallEast = false;
                         wallSouth = false;
-                       // wallWest = false;
                     }
 
                     id++;
@@ -182,174 +177,402 @@ public class LayoutController : MonoBehaviour {
     //corridor builder
     public void DigCorridor(DungeonRoom Room1, DungeonRoom Room2)
     {
-        //if(from x in theGrid where x.x == 1 && x.z == 2 select x).First() { }
-        //Debug.Log("DIG CORRIDOR");
+        DungeonRoom mainRoom;
+        DungeonRoom targetRoom;
 
+        Vector3 deltaVector = (Room2.transform.position - Room1.transform.position);
+        Vector3 deltaDirection = new Vector3(1, 0, 1);
+        var angle = Vector3.Angle(deltaDirection, deltaVector);
 
-        var mainRoom = Room1;
-        var targetRoom = Room2;
-
-
-
-
-
-
-        Vector3 mainPos = mainRoom.transform.position;
-        Vector3 targetPos = targetRoom.transform.position;
-
-        bool targetNorth = targetPos.z >= mainPos.z;
-        bool targetEast = targetPos.x >= mainPos.x;
-        bool isCollidingNorth = false;
-        bool isCollidingEast = false;
-        bool isCollidingSouth = false;
-        bool isCollidingWest = false;
-
-        bool needsCorridor = false;
-
-        //if (targetNorth)
-        //{
-        //    Debug.Log("main: " + mainRoom.ID + " , pos:" + (mainPos.z + (mainRoom.sizeZ / 2)));// + " , " + mainPos.x);
-        //    Debug.Log("target: " + targetRoom.ID + " , pos: " + (targetPos.z - (mainRoom.sizeZ / 2)));// + " , " + targetPos.x);
-        //}
-
-
-        //north colision
-        if (targetNorth && ((mainPos.z + ((mainRoom.sizeZ / 2)) == (targetPos.z - (targetRoom.sizeZ / 2)))))
+        if(angle < 90)
         {
-            isCollidingNorth = true;
+            mainRoom = Room1;
+            targetRoom = Room2;
         }
-        else if (targetNorth && (mainPos.z - ((mainRoom.sizeZ / 2)) == (targetPos.z + (targetRoom.sizeZ / 2))))
-        {
-            isCollidingSouth = true;
-        }
-        
-        //east collision
-        if (targetEast && ((mainPos.x + ((mainRoom.sizeX / 2)) == (targetPos.x - (targetRoom.sizeX / 2)))))
-        {
-            isCollidingEast = true;
-        }
-        else if (targetEast && (mainPos.x - ((mainRoom.sizeX / 2)) == (targetPos.x + (targetRoom.sizeX / 2))))
-        {
-            isCollidingWest = true;
-        }
-
-        //if (!isCollidingNorth && !isCollidingEast && !isCollidingSouth && !isCollidingWest)
-        //{
-        //    needsCorridor = true;
-        //}
-        //else
-        //{
-
-        int start;
-        int finish;
-
-        //this else if will make it so it prioritises in this order
-        if (isCollidingNorth)
-        {
-
-            //find a mutual point and make that gridspace have a doorNorth true
-            if (targetEast)
-            {
-                start = Mathf.RoundToInt(targetPos.x - (targetRoom.sizeX / 2));
-                finish = Mathf.RoundToInt(mainPos.x + (mainRoom.sizeX / 2));
-                //Debug.Log("AADSDA " + (finish - start));
-                //test
-                if (finish > start)
-                {
-                    var doorPos = (Random.Range(start, finish) + 0.5f);
-                    var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
-                    //Debug.Log("Door: " + doorPos + " , zPos: " + zPos);
-                    var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
-                    doorSpace.doorNorth = true;
-
-                    theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
-                    theGrid.Add(doorSpace);
-
-                    //Debug.Log("DOOR NORTH");
-                }
-            }
-            else
-            {
-                start = Mathf.RoundToInt(mainPos.x - (mainRoom.sizeX / 2));
-                finish = Mathf.RoundToInt(targetPos.x + (targetRoom.sizeX / 2));
-                //Debug.Log("AADSDA " + (finish - start));
-                //test
-                if (finish > start)
-                {
-                    var doorPos = (Random.Range(start, finish) + 0.5f);
-                    var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
-                    //var gridID = (from x in theGrid where x.x == doorPos && x.z == zPos select x.ID).First();
-
-                    var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
-                    doorSpace.doorNorth = true;
-
-                    theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
-                    theGrid.Add(doorSpace);
-                    //doorSpace.doorNorth = true;               
-                    //Debug.Log("DOOR NORTH");
-                }
-            }
-        }
-
-        if (isCollidingEast)
-        {
-            Debug.Log("CollEast");
-
-            //find a mutual point and make that gridspace have a doorNorth true
-            if (targetNorth)
-            {
-                Debug.Log("TargetNorth");
-                start = Mathf.RoundToInt(mainPos.z + (mainRoom.sizeZ / 2));
-                finish = Mathf.RoundToInt(targetPos.z - (targetRoom.sizeZ / 2));
-                if (start > finish)
-                {
-                    var doorPos = (Random.Range(start, finish) + 0.5f);
-                    var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
-                    var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
-                    doorSpace.doorEast = true;
-                    theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
-                    theGrid.Add(doorSpace);
-                }
-            }
-            else
-            {
-                Debug.Log("TargetSouth");              
-                start = Mathf.RoundToInt(targetPos.z + (targetRoom.sizeZ / 2));
-                finish = Mathf.RoundToInt(mainPos.z - (mainRoom.sizeZ / 2));
-                if (start > finish)
-                {
-                    var doorPos = (Random.Range(start, finish) + 0.5f);
-                    var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
-                    var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
-                    doorSpace.doorEast = true;
-                    theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
-                    theGrid.Add(doorSpace);
-                }
-            }
-        }
-        //else if (isCollidingSouth)
-        //{
-
-        //}
-        //else if (isCollidingWest)
-        //{
-
-        //}
         else
         {
-            needsCorridor = true;
+            mainRoom = Room2;
+            targetRoom = Room1;
         }
-        //}
 
+        var mainRoomPos = mainRoom.transform.position;
+        var targetRoomPos = targetRoom.transform.position;
+
+        // get a gs in room1 
+        var MainGs = new Vector3(mainRoomPos.x + 0.5f, 0, mainRoomPos.z + 0.5f);
+
+        Vector3 isNorthCheck = (targetRoom.transform.position - mainRoom.transform.position);
+
+        bool isNorth = (isNorthCheck.z > isNorthCheck.x) ? true : false;
+
+        //Debug.Log("MainID: " + mainRoom.ID + " , TargetID: " + targetRoom.ID + " , North: " + isNorth);
+
+
+        if (isNorth)
+        {
+            //find smalles value east
+            var mainEast = mainRoomPos.x + ((mainRoom.sizeX / 2) - 0.5f);
+            var targetEast = targetRoomPos.x + ((targetRoom.sizeX / 2) - 0.5f);
+            float deltaEast = 0;
+            if(mainEast < targetEast)
+            {
+                deltaEast = mainRoomPos.x + ((mainRoom.sizeX / 2) - 0.5f);
+            }
+            else
+            {
+                deltaEast = targetRoomPos.x + ((targetRoom.sizeX / 2) - 0.5f);
+            }
+          
+            //find the smallest value west
+            var mainWest = mainRoomPos.x - ((mainRoom.sizeX / 2) - 0.5f);     
+            var targetWest = targetRoomPos.x - ((targetRoom.sizeX / 2) - 0.5f);
+            float deltaWest = 0;
+            if (mainWest > targetWest)
+            {
+                deltaWest = mainRoomPos.x - ((mainRoom.sizeX / 2) - 0.5f);
+            }
+            else
+            {
+                deltaWest = targetRoomPos.x - ((targetRoom.sizeX / 2) - 0.5f);
+            }
+
+            bool isCornerPiece = false;
+            if(mainEast < targetWest || mainWest > targetEast)
+            {
+                isCornerPiece = true;
+            }
+
+            int start = Mathf.RoundToInt(deltaEast - 0.5f);
+            int finish = Mathf.RoundToInt(deltaWest - 0.5f);
+
+            var doorPos = (Random.Range(start, finish) + 0.5f);
+            var zPos = mainRoomPos.z + ((mainRoom.sizeZ / 2) - 0.5f);
+
+            if (!isCornerPiece)
+            {
+                var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
+                doorSpace.doorNorth = true;
+                theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
+                theGrid.Add(doorSpace);
+
+                bool isDigging = false;
+
+                //walk up and place corridors until you hit the other room, then change that to a no wall, if a corridor was made
+                if (zPos < (targetRoomPos.z - (targetRoom.sizeZ / 2)))
+                {
+                    zPos = zPos + 1;
+                    while (zPos < (targetRoomPos.z - (targetRoom.sizeZ / 2) + 1.5f)) // 1.5 so that it hits the other side in this while loop
+                    {
+                        GridSpace gs;
+                        if (zPos < (targetRoomPos.z - (targetRoom.sizeZ / 2)))
+                        {
+                            //NEED TO SORT ID - maybe make id global and ++ it here too?
+                            gs = new GridSpace(666, doorPos, zPos, GridType.floor);
+                            gs.setWalls(false, true, false, true);
+                            theGrid.Add(gs);
+                            zPos = zPos + 1;
+                            isDigging = true;
+
+                        }
+                        else if (isDigging)
+                        {
+                            //change one above
+                            var southDoor = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
+                            southDoor.doorSouth = true;
+                            //Debug.Log("ASDSDAAAAAA");
+                            theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
+                            theGrid.Add(southDoor);
+                            break;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("CORNER PIECE ON ID: " + mainRoom.ID);
+            }
+        }
+        // IS EAST
+        else
+        {
+            //find smalles value north
+            var mainNorth = mainRoomPos.z + ((mainRoom.sizeZ / 2) - 0.5f);
+            var targetNorth = targetRoomPos.z + ((targetRoom.sizeZ / 2) - 0.5f);
+            float deltaNorth = 0;
+            if (mainNorth < targetNorth)
+            {
+                deltaNorth = mainRoomPos.z + ((mainRoom.sizeZ / 2) - 0.5f);
+            }
+            else
+            {
+                deltaNorth = targetRoomPos.z + ((targetRoom.sizeZ / 2) - 0.5f);
+            }
+
+            //find the smallest value west
+            var mainSouth = mainRoomPos.z - ((mainRoom.sizeZ / 2) - 0.5f);
+            var targetSouth = targetRoomPos.z - ((targetRoom.sizeZ / 2) - 0.5f);
+            float deltaSouth = 0;
+            if (mainSouth > targetSouth)
+            {
+                deltaSouth = mainRoomPos.z - ((mainRoom.sizeZ / 2) - 0.5f);
+            }
+            else
+            {
+                deltaSouth = targetRoomPos.z - ((targetRoom.sizeZ / 2) - 0.5f);
+            }
+
+            bool isCornerPiece = false;
+            if (mainNorth < targetSouth || mainSouth > targetNorth)
+            {
+                Debug.Log("EAST TO WEST CORNER PIECE!!!");
+                isCornerPiece = true;
+            }
+
+            int start = Mathf.RoundToInt(deltaNorth - 0.5f);
+            int finish = Mathf.RoundToInt(deltaSouth - 0.5f);
+
+            var doorPos = (Random.Range(start, finish) + 0.5f);
+            var xPos = mainRoomPos.x + ((mainRoom.sizeX / 2) - 0.5f);
+
+            if (!isCornerPiece)
+            {
+                var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
+                doorSpace.doorEast = true;
+                theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
+                theGrid.Add(doorSpace);
+
+                bool isDigging = false;
+
+                //walk up and place corridors until you hit the other room, then change that to a no wall, if a corridor was made
+                if (xPos < (targetRoomPos.x - (targetRoom.sizeX / 2)))
+                {
+                    xPos = xPos + 1;
+                    while (xPos < (targetRoomPos.x - (targetRoom.sizeX / 2) + 1.5f)) // 1.5 so that it hits the other side in this while loop
+                    {
+                        GridSpace gs;
+                        if (xPos < (targetRoomPos.x - (targetRoom.sizeX / 2)))
+                        {
+                            //NEED TO SORT ID - maybe make id global and ++ it here too?
+                            gs = new GridSpace(666, xPos, doorPos, GridType.floor);
+                            gs.setWalls(true, false, true, false);
+                            theGrid.Add(gs);
+                            xPos = xPos + 1;
+                            isDigging = true;
+
+                        }
+                        else if (isDigging)
+                        {
+                            //change one above
+                            var westDoor = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
+                            westDoor.doorWest = true;
+                            //Debug.Log("ASDSDAAAAAA");
+                            theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
+                            theGrid.Add(westDoor);
+                            break;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("CORNER PIECE ON ID: " + mainRoom.ID);
+            }
+        }
+        bool old = false;
+        if (old)
+        {
+
+
+        //    DungeonRoom mainRoom;
+        //    DungeonRoom targetRoom;
+
+        //    Vector3 Room1Pos = Room1.transform.position;
+        //    Vector3 Room2Pos = Room2.transform.position;
+
+
+        //    //get main room - this will half the code I have to do later!
+
+        //    //north
+
+
+
+
+
+
+
+
+        //    mainRoom = Room1;
+        //    targetRoom = Room2;
+
+        //    Vector3 mainPos = mainRoom.transform.position;
+        //    Vector3 targetPos = targetRoom.transform.position;
+
+        //    bool targetNorth = targetPos.z >= mainPos.z;
+        //    bool targetEast = targetPos.x >= mainPos.x;
+
+        //    bool isCollidingNorth = false;
+        //    bool isCollidingEast = false;
+
+        //    bool isCollidingSouth = false;
+        //    bool isCollidingWest = false;
+
+        //    bool needsCorridor = false;
+
+
+        //    //if (targetNorth)
+        //    //{
+        //    //    Debug.Log("main: " + mainRoom.ID + " , pos:" + (mainPos.z + (mainRoom.sizeZ / 2)));// + " , " + mainPos.x);
+        //    //    Debug.Log("target: " + targetRoom.ID + " , pos: " + (targetPos.z - (mainRoom.sizeZ / 2)));// + " , " + targetPos.x);
+        //    //}
+
+
+
+        //    //north colision
+        //    if (targetNorth && ((mainPos.z + ((mainRoom.sizeZ / 2)) == (targetPos.z - (targetRoom.sizeZ / 2)))))
+        //    {
+        //        isCollidingNorth = true;
+        //    }
+        //    else if (targetNorth && (mainPos.z - ((mainRoom.sizeZ / 2)) == (targetPos.z + (targetRoom.sizeZ / 2))))
+        //    {
+        //        isCollidingSouth = true;
+        //    }
+
+
+
+        //    //east collision
+        //    if (targetEast && ((mainPos.x + ((mainRoom.sizeX / 2)) == (targetPos.x - (targetRoom.sizeX / 2)))))
+        //    {
+        //        isCollidingEast = true;
+        //    }
+        //    else if (targetEast && (mainPos.x - ((mainRoom.sizeX / 2)) == (targetPos.x + (targetRoom.sizeX / 2))))
+        //    {
+        //        isCollidingWest = true;
+        //    }
+
+        //    //if (!isCollidingNorth && !isCollidingEast && !isCollidingSouth && !isCollidingWest)
+        //    //{
+        //    //    needsCorridor = true;
+        //    //}
+        //    //else
+        //    //{
+
+        //    int start;
+        //    int finish;
+
+        //    //this else if will make it so it prioritises in this order
+        //    if (isCollidingNorth)
+        //    {
+
+        //        //find a mutual point and make that gridspace have a doorNorth true
+        //        if (targetEast)
+        //        {
+        //            start = Mathf.RoundToInt(targetPos.x - (targetRoom.sizeX / 2));
+        //            finish = Mathf.RoundToInt(mainPos.x + (mainRoom.sizeX / 2));
+        //            //Debug.Log("AADSDA " + (finish - start));
+        //            //test
+        //            if (finish > start)
+        //            {
+        //                var doorPos = (Random.Range(start, finish) + 0.5f);
+        //                var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
+        //                //Debug.Log("Door: " + doorPos + " , zPos: " + zPos);
+        //                var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
+        //                doorSpace.doorNorth = true;
+
+        //                theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
+        //                theGrid.Add(doorSpace);
+
+        //                //Debug.Log("DOOR NORTH");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            start = Mathf.RoundToInt(mainPos.x - (mainRoom.sizeX / 2));
+        //            finish = Mathf.RoundToInt(targetPos.x + (targetRoom.sizeX / 2));
+        //            //Debug.Log("AADSDA " + (finish - start));
+        //            //test
+        //            if (finish > start)
+        //            {
+        //                var doorPos = (Random.Range(start, finish) + 0.5f);
+        //                var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
+        //                //var gridID = (from x in theGrid where x.x == doorPos && x.z == zPos select x.ID).First();
+
+        //                var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
+        //                doorSpace.doorNorth = true;
+
+        //                theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
+        //                theGrid.Add(doorSpace);
+        //                //doorSpace.doorNorth = true;               
+        //                //Debug.Log("DOOR NORTH");
+        //            }
+        //        }
+        //    }
+
+        //    if (isCollidingEast)
+        //    {
+        //        Debug.Log("CollEast");
+
+        //        //find a mutual point and make that gridspace have a doorNorth true
+        //        if (targetNorth)
+        //        {
+        //            Debug.Log("TargetNorth");
+        //            start = Mathf.RoundToInt(mainPos.z + (mainRoom.sizeZ / 2));
+        //            finish = Mathf.RoundToInt(targetPos.z - (targetRoom.sizeZ / 2));
+        //            if (start > finish)
+        //            {
+        //                var doorPos = (Random.Range(start, finish) + 0.5f);
+        //                var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
+        //                var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
+        //                doorSpace.doorEast = true;
+        //                theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
+        //                theGrid.Add(doorSpace);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Debug.Log("TargetSouth");
+        //            start = Mathf.RoundToInt(targetPos.z + (targetRoom.sizeZ / 2));
+        //            finish = Mathf.RoundToInt(mainPos.z - (mainRoom.sizeZ / 2));
+        //            if (start > finish)
+        //            {
+        //                var doorPos = (Random.Range(start, finish) + 0.5f);
+        //                var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
+        //                var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
+        //                doorSpace.doorEast = true;
+        //                theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
+        //                theGrid.Add(doorSpace);
+        //            }
+        //        }
+        //    }
+        //    //else if (isCollidingSouth)
+        //    //{
+
+        //    //}
+        //    //else if (isCollidingWest)
+        //    //{
+
+        //    //}
+        //    else
+        //    {
+        //        needsCorridor = true;
+        //    }
+        //    //}
+        }
 
     }
 
 
 
-
     //THESE BELOW WILL BE REMOVED AND DONE ELSEWHERE
 
-
+    //THIS IS OLD AND WONT WORK
     IEnumerator genFloorsTestIterate(List<DungeonRoom> _dungeonRooms)
     {
         //bool isFirstX;
@@ -388,15 +611,10 @@ public class LayoutController : MonoBehaviour {
         }
     }
 
+    //used
     private void LayGrid()
     {
-
-        //TODO - add a door check in here that overrides wall, and more checks that look for problems
-
-
-
         var rot = Quaternion.Euler(0, 90, 0);
-
         Vector3 wallPos = new Vector3(0, 0, 0);
 
         var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
@@ -428,7 +646,7 @@ public class LayoutController : MonoBehaviour {
             if (g.wallEast || g.doorEast)
             {
 
-                wallPos = new Vector3(g.x - 0.5f, 1.25f, g.z);
+                wallPos = new Vector3(g.x + 0.5f, 1.25f, g.z);
                 if (g.doorEast)
                 {
                     var newWall = Instantiate(testDoor, wallPos, rot);
@@ -441,28 +659,44 @@ public class LayoutController : MonoBehaviour {
                 }
                 
             }
-            if (g.wallSouth)
+            if (g.doorSouth || g.wallSouth)
             {
                 //createWall = true;
-                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1)))
+                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)))
                 {
                     wallPos = new Vector3(g.x, 1.25f, g.z - 0.5f);
-                    var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
-                    newWall.transform.parent = gridHousing.transform;
+                    //Debug.Log(g.doorSouth);
+                    if (g.doorSouth)
+                    {
+                        var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+                    else
+                    {
+                        var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
                 }
             }
-            if (g.wallWest)
+            if (g.doorWest || g.wallWest)
             {
                 //createWall = true;
-                if (!(theGrid.Any(x => x.x == g.x + 1 && x.z == g.z)))
+                if (!(theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
                 {
-                    wallPos = new Vector3(g.x + 0.5f, 1.25f, g.z);
-                    var newWall = Instantiate(testWall, wallPos, rot);
-                    newWall.transform.parent = gridHousing.transform;
+                    wallPos = new Vector3(g.x - 0.5f, 1.25f, g.z);
+                    if (g.doorWest)
+                    {
+                        var newWall = Instantiate(testDoor, wallPos, rot);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+                    else
+                    {                       
+                        var newWall = Instantiate(testWall, wallPos, rot);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
                 }
             }
 
         }
     }
-
 }
