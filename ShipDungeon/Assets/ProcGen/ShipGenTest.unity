@@ -512,10 +512,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33cd3b9d27da15429e612ab9c5fee4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 7
+  Radius: 5
   gridSpacing: 1
-  minRoomSize: 3
-  maxRoomSize: 5
+  minRoomSize: 2
+  maxRoomSize: 4
   numberOfRooms: 12
   MaxAttempts: 1000
   floor: {fileID: 1069590541891972, guid: 05fa6ff75567a804bb1d18f1abab1c83, type: 2}
