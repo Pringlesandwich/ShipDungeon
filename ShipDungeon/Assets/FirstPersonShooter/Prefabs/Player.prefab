@@ -243,7 +243,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1550052529575152}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 20.41, y: 1, z: -32.38}
+  m_LocalPosition: {x: 24.98, y: 1, z: -32.38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4945984573279108}
@@ -623,7 +623,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gun: {fileID: 114823741533204234}
-  speed: 7
+  speed: 9
   mouseSensitivity: 2
   accelerationSpeed: 0.1
   deccelerationSpeed: 0.08
@@ -664,12 +664,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 228bb558e699e1c4eb94ed3149501a63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rateOfFire: 6
+  rateOfFire: 4
   recoil: 3.5
   accuracy: 65.3
   maxGunSpread: 3
   handling: 0.158
-  damage: 25
+  damage: 32
   muzzle: {fileID: 1746253931859118}
   camMask:
     serializedVersion: 2

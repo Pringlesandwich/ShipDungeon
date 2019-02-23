@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class DungeonGenerator : MonoBehaviour {
@@ -25,6 +26,7 @@ public class DungeonGenerator : MonoBehaviour {
     private bool moveRooms = false;
 
     public bool iterate;
+    public bool showLines;
 
     private Renderer renderer;
     public Material newMat;
@@ -52,6 +54,10 @@ public class DungeonGenerator : MonoBehaviour {
     private bool prepFinished = false;
     public LayoutController LayoutController;
     private List<DungeonRoom> dungeonRooms = new List<DungeonRoom>();
+
+    private bool allComplete = false;
+
+    private List<GameObject> toRemove;
 
     //---------------------------------------//
     // SO FAR...
@@ -190,6 +196,8 @@ public class DungeonGenerator : MonoBehaviour {
 
     private void SeperateRoomslol()
     {
+        bool allRoomsWorking = false;
+
         GO = GameObject.FindGameObjectsWithTag("Gen");
         for (int i = 0; i < MaxAttempts; i++)
         {
@@ -211,7 +219,7 @@ public class DungeonGenerator : MonoBehaviour {
                             if (distB > distA)
                             {
                                 count++;
-                                Vector3 direction = (b.transform.position - a.transform.position) + (B / 2);
+                                Vector3 direction = (b.transform.position - a.transform.position);// + (B / 2);
                                 //Vector3 direction = (b.transform.position - a.transform.position);
                                 direction.Normalize();
                                 Vector3 moveDirection = FindMoveDiection(direction);
@@ -224,7 +232,7 @@ public class DungeonGenerator : MonoBehaviour {
                             else
                             {
                                 count++;
-                                Vector3 direction = (a.transform.position - b.transform.position) + (A / 8);
+                                Vector3 direction = (a.transform.position - b.transform.position);// + (A / 8);
                                 //Vector3 direction = (a.transform.position - b.transform.position);
                                 direction.Normalize();
                                 Vector3 moveDirection = FindMoveDiection(direction);
@@ -241,8 +249,14 @@ public class DungeonGenerator : MonoBehaviour {
             if (count == 0)
             {
                 Debug.Log("WOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                allRoomsWorking = true;
                 break;
             }
+        }
+        if(!allRoomsWorking)
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(scene.name);
         }
     }
 
@@ -260,22 +274,18 @@ public class DungeonGenerator : MonoBehaviour {
             DR.sizeX = Mathf.RoundToInt(delta.x * 2);
             DR.sizeZ = Mathf.RoundToInt(delta.y * 2);
             dungeonRooms.Add(DR);
-            //newFloor.transform.localScale = new Vector3(((delta.x * gridSpacing) - 0.1f), 1, ((delta.y * gridSpacing) - 0.1f));
-            //newFloor.transform.localScale = new Vector3((delta.x * gridSpacing), 1, (delta.y * gridSpacing));
             newFloor.transform.localScale = new Vector3((delta.x * 2) - 0.1f, 1, (delta.y * 2) - 0.1f);
-            //Debug.Log("pos = " + delta.x + " : " + delta.y);
         }
     }
 
     IEnumerator SeperateRooms()
     {
         GO = GameObject.FindGameObjectsWithTag("Gen");
-
         int count = 0;
 
         for (int i = 0; i < MaxAttempts; i++)
         {
-
+            
             count = 0;
 
             foreach (GameObject a in GO)
@@ -497,16 +507,61 @@ public class DungeonGenerator : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        //if(Input.GetKeyDown(KeyCode.R))
-        //{
-        //    GenDungeon();
-        //}
 
-        //if(moveRooms)
-        //{
-        //    MoveRooms();
-        //    moveRooms = false;
-        //}
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+
+            Scene scene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(scene.name);
+
+            bool newMethod = true;
+            if (!newMethod)
+            {
+                Debug.Log("RESET!!!");
+
+                //TODO - keep a list of all dungeon test rooms, edges, 
+                var ToHide = GameObject.FindGameObjectsWithTag("Gen");
+                Debug.Log("Rooms to Delete: " + ToHide.Length);
+                foreach (var i in ToHide)
+                {
+                    Destroy(i);
+                }
+
+                var Lines = GameObject.FindGameObjectsWithTag("Lines");
+                Debug.Log("Edges to Delete: " + Lines.Length);
+                foreach (var i in Lines)
+                {
+                    Destroy(i);
+                }
+
+                Destroy(GameObject.FindGameObjectWithTag("AllShipMesh"));
+
+                //restart bools and scripts
+                //theDTController = null;
+                //thePrimController = null;
+                //roomList = null;
+                //dungeonRooms = null;
+
+                theDTController = new DTController();
+                thePrimController = new Prims();
+                roomList = new List<VertexNode>();
+                dungeonRooms = new List<DungeonRoom>();
+
+                //theDTController.clearList();
+
+                GO = null;
+
+
+                isFinished = false;
+                DTFinished = false;
+                PrimFinished = false;
+                LayoutFinished = false;
+                prepFinished = false;
+                allComplete = false;
+                //isRestart = true;
+            }
+        }
 
         if (DTTime)
         {
@@ -546,6 +601,32 @@ public class DungeonGenerator : MonoBehaviour {
             {
                 prepFinished = true;
                 LayoutController.SetGrid(dungeonRooms); //convert rooms to a grid
+            }
+            else if(!allComplete)
+            {
+
+                //Temp and messy but works for now
+                var ToHide = GameObject.FindGameObjectsWithTag("Gen");
+                foreach (var i in ToHide)
+                {
+                    i.SetActive(false);
+                }
+
+                var Lines = GameObject.FindGameObjectsWithTag("Lines");
+                foreach (var i in Lines)
+                {
+                    i.SetActive(false);
+                }
+
+                //TODO - add player controller and test!
+
+
+
+
+                allComplete = true;
+
+
+
             }
         }
     }
@@ -699,6 +780,7 @@ public class DungeonGenerator : MonoBehaviour {
             //newFloor.transform.localScale = new Vector3((delta.x * gridSpacing), 1, (delta.y * gridSpacing));
             newFloor.transform.localScale = new Vector3((delta.x * 2), 1, (delta.y * 2));
             //Debug.Log("pos = " + delta.x + " : " + delta.y);
+            toRemove.Add(newFloor);
         }
         moveRooms = false;
     }
@@ -753,8 +835,16 @@ public class DungeonGenerator : MonoBehaviour {
 
         lineRender = new LineRenderer();
         lineRender = this.gameObject.AddComponent<LineRenderer>();
-        lineRender.startWidth = 0.5f;
-        lineRender.endWidth = 0.5f;
+        if (showLines)
+        {
+            lineRender.startWidth = 0.5f;
+            lineRender.endWidth = 0.5f;
+        }
+        else
+        {
+            lineRender.startWidth = 0;
+            lineRender.endWidth = 0;
+        }
         lineRender.positionCount = 200;
 
         foreach (var a in GO)

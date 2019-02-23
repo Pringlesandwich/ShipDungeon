@@ -109,6 +109,16 @@ public class DTController {
         return isDone;
     }
 
+    public void setDTDone(bool delta)
+    {
+        isDone = delta;
+    }
+
+    public void clearList()
+    {
+        toAddList.Clear();
+    }
+
     //Handles set up of triangulation
     public void setupTriangulation(List<VertexNode> _roomList)
     {

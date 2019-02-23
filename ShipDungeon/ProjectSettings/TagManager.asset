@@ -15,6 +15,7 @@ TagManager:
   - testing
   - Lines
   - MeleeBox
+  - AllShipMesh
   layers:
   - Default
   - TransparentFX

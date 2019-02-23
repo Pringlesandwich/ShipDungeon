@@ -512,16 +512,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c33cd3b9d27da15429e612ab9c5fee4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 5
-  gridSpacing: 1
+  Radius: 3
+  gridSpacing: 0.5
   minRoomSize: 2
-  maxRoomSize: 4
-  numberOfRooms: 12
+  maxRoomSize: 3
+  numberOfRooms: 11
   MaxAttempts: 1000
   floor: {fileID: 1069590541891972, guid: 05fa6ff75567a804bb1d18f1abab1c83, type: 2}
   strength: 2
   waitTime: 0
-  iterate: 1
+  iterate: 0
+  showLines: 0
   newMat: {fileID: 2100000, guid: 68e3a8437f5dbe5419332589bc00fc7b, type: 2}
   startMat: {fileID: 2100000, guid: 834ce3439063ba848888cbbd25c4bb35, type: 2}
   strenght2: 5
@@ -553,7 +554,13 @@ MonoBehaviour:
   testFloor: {fileID: 1307959886030492, guid: ee252dd97119baa4dab90e77b9725f9d, type: 2}
   testWall: {fileID: 1666506612271864, guid: c50b82d44572cf84ea790446d12cdcc0, type: 2}
   testDoor: {fileID: 1103060612156214, guid: cf042ac052e14ab46b1e553387a6cbe8, type: 2}
+  testBlock: {fileID: 1667171569714226, guid: ab78c054dc5a78442bdda820047f4f83, type: 2}
+  Floor: {fileID: 1764806171123308, guid: 0830790f000ed2f4f909e2727a8e7ed8, type: 2}
+  Wall: {fileID: 1663004405338600, guid: 361fd85845af9a543b76735518bdef71, type: 2}
+  Door: {fileID: 1809245542616232, guid: 3c6e43778924ee847a11a48e9cb0b5a6, type: 2}
+  Block: {fileID: 1123916874401520, guid: 0dda49460bc125d44beb87fe757ea3cb, type: 2}
   iterate: 0
+  isComplete: 0
 --- !u!4 &470243231 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4199516004841338, guid: f1b62e57e36291a428bde018569e5cc8,
@@ -1072,8 +1079,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1004101085}
-  m_LocalRotation: {x: -0.5565095, y: -0.04978026, z: 0.033427753, w: -0.8286747}
-  m_LocalPosition: {x: -6.5455904, y: 79.24075, z: -39.49507}
+  m_LocalRotation: {x: -0.6089757, y: -0.005083461, z: 0.0038973577, w: -0.79316306}
+  m_LocalPosition: {x: -10.737207, y: 165.10104, z: -57.814728}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

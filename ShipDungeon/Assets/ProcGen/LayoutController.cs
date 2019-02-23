@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+using UnityEngine.SceneManagement;
+
 
 public class LayoutController : MonoBehaviour {
 
@@ -11,6 +13,12 @@ public class LayoutController : MonoBehaviour {
     public GameObject testFloor;
     public GameObject testWall;
     public GameObject testDoor;
+    public GameObject testBlock;
+
+    public GameObject Floor;
+    public GameObject Wall;
+    public GameObject Door;
+    public GameObject Block;
 
     public bool iterate = false;
 
@@ -18,9 +26,13 @@ public class LayoutController : MonoBehaviour {
 
         public int ID;
 
+        public int roomID;
+
         public float x, z;
 
         public GridType gsSpaceType;
+
+        public bool hasObject;
 
         public bool wallNorth;
         public bool wallEast;
@@ -39,6 +51,8 @@ public class LayoutController : MonoBehaviour {
             x = _x;
             z = _z;
             gsSpaceType = gt;
+
+            hasObject = false;
 
             wallNorth = false;
             wallEast = false;
@@ -148,11 +162,19 @@ public class LayoutController : MonoBehaviour {
                     }
 
                     id++;
-
+ 
                     zStart = zStart + 1;
                     gs = new GridSpace(id, xStart, zStart, GridType.floor);
                     gs.setWalls(wallNorth, wallEast, wallSouth, wallWest);
-                    theGrid.Add(gs); 
+                    gs.roomID = i.ID;
+                    
+
+                    int test = Random.Range(0, 12);
+                    if (test < 2)
+                    {
+                        gs.hasObject = true;
+                    }
+                    theGrid.Add(gs);
                 }
             }
         }
@@ -169,7 +191,7 @@ public class LayoutController : MonoBehaviour {
                 }
             }
         }
-
+        //LayTestGrid();
 
         LayGrid();
     } 
@@ -384,6 +406,10 @@ public class LayoutController : MonoBehaviour {
             else
             {
                 Debug.Log("CORNER PIECE ON ID: " + mainRoom.ID);
+
+                Scene scene = SceneManager.GetActiveScene();
+                SceneManager.LoadScene(scene.name);
+                
             }
         }
         bool old = false;
@@ -568,8 +594,6 @@ public class LayoutController : MonoBehaviour {
 
     }
 
-
-
     //THESE BELOW WILL BE REMOVED AND DONE ELSEWHERE
 
     //THIS IS OLD AND WONT WORK
@@ -612,7 +636,7 @@ public class LayoutController : MonoBehaviour {
     }
 
     //used
-    private void LayGrid()
+    private void LayTestGrid()
     {
         var rot = Quaternion.Euler(0, 90, 0);
         Vector3 wallPos = new Vector3(0, 0, 0);
@@ -620,53 +644,42 @@ public class LayoutController : MonoBehaviour {
         var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
         foreach (var g in theGrid)
         {
-            if (g.gsSpaceType == GridType.floor)
-            {
-                var newFloor = Instantiate(testFloor, new Vector3(g.x, .75f, g.z), Quaternion.identity);
-                newFloor.transform.parent = gridHousing.transform;
-            }
 
-            //bool createWall = false;
-            //TEST
-            if (g.wallNorth || g.doorNorth)
+            bool complete = true;
+
+            if (g.hasObject && (!g.doorNorth && !g.doorEast && !g.doorSouth && !g.doorWest))
             {
-                wallPos = new Vector3(g.x, 1.25f, g.z + 0.5f);
-                if (g.doorNorth)
+                //check if door below or to left
+                if ((theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)) || (theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
                 {
-                    var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
-                    newWall.transform.parent = gridHousing.transform;
+                    Debug.Log("DOOR IN WAY!!!!");
                 }
                 else
                 {
-                    var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
-                    newWall.transform.parent = gridHousing.transform;
+                    //LAY OBJECT HERE!!!
+                    var newBlock = Instantiate(testBlock, new Vector3(g.x, 1.25f, g.z), Quaternion.identity);
+                    newBlock.transform.parent = gridHousing.transform;
+                    //complete = false;
                 }
             }
-
-            if (g.wallEast || g.doorEast)
+            else
             {
 
-                wallPos = new Vector3(g.x + 0.5f, 1.25f, g.z);
-                if (g.doorEast)
-                {
-                    var newWall = Instantiate(testDoor, wallPos, rot);
-                    newWall.transform.parent = gridHousing.transform;
-                }
-                else
-                {
-                    var newWall = Instantiate(testWall, wallPos, rot);
-                    newWall.transform.parent = gridHousing.transform;
-                }
-                
             }
-            if (g.doorSouth || g.wallSouth)
-            {
-                //createWall = true;
-                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)))
+            if (complete)
+            { 
+                if (g.gsSpaceType == GridType.floor)
                 {
-                    wallPos = new Vector3(g.x, 1.25f, g.z - 0.5f);
-                    //Debug.Log(g.doorSouth);
-                    if (g.doorSouth)
+                    var newFloor = Instantiate(testFloor, new Vector3(g.x, .75f, g.z), Quaternion.identity);
+                    newFloor.transform.parent = gridHousing.transform;
+                }
+
+                //bool createWall = false;
+                //TEST
+                if (g.wallNorth || g.doorNorth)
+                {
+                    wallPos = new Vector3(g.x, 1.25f, g.z + 0.5f);
+                    if (g.doorNorth)
                     {
                         var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
                         newWall.transform.parent = gridHousing.transform;
@@ -677,21 +690,167 @@ public class LayoutController : MonoBehaviour {
                         newWall.transform.parent = gridHousing.transform;
                     }
                 }
+
+                if (g.wallEast || g.doorEast)
+                {
+
+                    wallPos = new Vector3(g.x + 0.5f, 1.25f, g.z);
+                    if (g.doorEast)
+                    {
+                        var newWall = Instantiate(testDoor, wallPos, rot);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+                    else
+                    {
+                        var newWall = Instantiate(testWall, wallPos, rot);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+
+                }
+                if (g.doorSouth || g.wallSouth)
+                {
+                    //createWall = true;
+                    if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)))
+                    {
+                        wallPos = new Vector3(g.x, 1.25f, g.z - 0.5f);
+                        //Debug.Log(g.doorSouth);
+                        if (g.doorSouth)
+                        {
+                            var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
+                            newWall.transform.parent = gridHousing.transform;
+                        }
+                        else
+                        {
+                            var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
+                            newWall.transform.parent = gridHousing.transform;
+                        }
+                    }
+                }
+                if (g.doorWest || g.wallWest)
+                {
+                    //createWall = true;
+                    if (!(theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
+                    {
+                        wallPos = new Vector3(g.x - 0.5f, 1.25f, g.z);
+                        if (g.doorWest)
+                        {
+                            var newWall = Instantiate(testDoor, wallPos, rot);
+                            newWall.transform.parent = gridHousing.transform;
+                        }
+                        else
+                        {
+                            var newWall = Instantiate(testWall, wallPos, rot);
+                            newWall.transform.parent = gridHousing.transform;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void LayGrid()
+    {
+        var rot = Quaternion.Euler(0, 90, 0);
+        Vector3 wallPos = new Vector3(0, 0, 0);
+        Vector3 doorPos = new Vector3(0, 0, 0);
+
+        var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
+        gridHousing.tag = "AllShipMesh";
+        foreach (var g in theGrid)
+        {
+            var X = g.x * 5;
+            var Z = g.z * 5;
+
+            if (g.hasObject && (!g.doorNorth && !g.doorEast && !g.doorSouth && !g.doorWest))
+            {
+                //check if door below or to left
+                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)) 
+                    && !(theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast))
+                    )
+                {
+                    //LAY OBJECT HERE!!!
+                    var newBlock = Instantiate(Block, new Vector3(X, 2.5f, Z), Quaternion.identity);
+                    newBlock.transform.parent = gridHousing.transform;
+                    //complete = false;
+                }
+            }
+            if (g.gsSpaceType == GridType.floor)
+            {
+                var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
+                newFloor.transform.parent = gridHousing.transform;
+            }
+
+            //bool createWall = false;
+            //TEST
+            if (g.wallNorth || g.doorNorth)
+            {
+                wallPos = new Vector3(X, 2.5f, Z + 2.5f);
+                doorPos = new Vector3(X, 0, Z + 2.5f);
+                if (g.doorNorth)
+                {
+                    var newWall = Instantiate(Door, doorPos, Quaternion.identity);
+                    newWall.transform.parent = gridHousing.transform;
+                }
+                else
+                {
+                    var newWall = Instantiate(Wall, wallPos, Quaternion.identity);
+                    newWall.transform.parent = gridHousing.transform;
+                }
+            }
+
+            if (g.wallEast || g.doorEast)
+            {
+
+                wallPos = new Vector3(X + 2.5f, 2.5f, Z);
+                doorPos = new Vector3(X + 2.5f, 0, Z);
+                if (g.doorEast)
+                {
+                    var newWall = Instantiate(Door, doorPos, rot);
+                    newWall.transform.parent = gridHousing.transform;
+                }
+                else
+                {
+                    var newWall = Instantiate(Wall, wallPos, rot);
+                    newWall.transform.parent = gridHousing.transform;
+                }
+
+            }
+            if (g.doorSouth || g.wallSouth)
+            {
+                //createWall = true;
+                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)))
+                {
+                    wallPos = new Vector3(X, 2.5f, Z - 2.5f);
+                    doorPos = new Vector3(X, 0, Z - 2.5f);
+                    //Debug.Log(g.doorSouth);
+                    if (g.doorSouth)
+                    {
+                        var newWall = Instantiate(Door, doorPos, Quaternion.identity);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+                    else
+                    {
+                        var newWall = Instantiate(Wall, wallPos, Quaternion.identity);
+                        newWall.transform.parent = gridHousing.transform;
+                    }
+                }
             }
             if (g.doorWest || g.wallWest)
             {
                 //createWall = true;
                 if (!(theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
                 {
-                    wallPos = new Vector3(g.x - 0.5f, 1.25f, g.z);
+                    wallPos = new Vector3(X - 2.5f, 2.5f, Z);
+                    doorPos = new Vector3(X - 2.5f, 0, Z);
                     if (g.doorWest)
                     {
-                        var newWall = Instantiate(testDoor, wallPos, rot);
+                        var newWall = Instantiate(Door, doorPos, rot);
                         newWall.transform.parent = gridHousing.transform;
                     }
                     else
-                    {                       
-                        var newWall = Instantiate(testWall, wallPos, rot);
+                    {
+                        var newWall = Instantiate(Wall, wallPos, rot);
                         newWall.transform.parent = gridHousing.transform;
                     }
                 }
