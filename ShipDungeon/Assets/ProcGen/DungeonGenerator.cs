@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Linq;
 
 public class DungeonGenerator : MonoBehaviour {
 
@@ -59,6 +59,10 @@ public class DungeonGenerator : MonoBehaviour {
 
     private List<GameObject> toRemove;
 
+    public bool singleRoomSeperate;
+
+    public int maxRooms;
+
     //---------------------------------------//
     // SO FAR...
     //      - GenRooms()
@@ -91,9 +95,13 @@ public class DungeonGenerator : MonoBehaviour {
         else
         {
             GenRoomslol();
-            SeperateRoomslol();
-            setRooms();
-            DTTime = true;
+            if (!singleRoomSeperate)
+            {
+                SeperateRoomslol();
+                MakeMaxRooms();
+                setRooms();
+                DTTime = true;
+            }
         }     
     }
 
@@ -198,6 +206,8 @@ public class DungeonGenerator : MonoBehaviour {
     {
         bool allRoomsWorking = false;
 
+        bool moveUP = false;
+
         GO = GameObject.FindGameObjectsWithTag("Gen");
         for (int i = 0; i < MaxAttempts; i++)
         {
@@ -260,6 +270,139 @@ public class DungeonGenerator : MonoBehaviour {
         }
     }
 
+    private void MakeMaxRooms()
+    {
+        Debug.Log("Make Max Rooms!");
+        //get closest room
+        Vector3 zero = new Vector3(0, 0, 0);
+        GO = GameObject.FindGameObjectsWithTag("Gen");
+
+        List<GameObject> deltaList = new List<GameObject>();
+
+        if (GO.Count() > maxRooms)
+        {
+
+            GO = GO.OrderBy(x => Vector3.Distance(x.transform.position, zero)).ToArray(); //Take(maxRooms).ToArray(); 
+            int count = - 1;
+            foreach (var g in GO)
+            {
+                count++;
+                if(count > maxRooms - 1)
+                {
+                    Debug.Log("DESTORY!!!!");
+                    Destroy(g);
+                }
+                else
+                {
+                    deltaList.Add(g);
+                }
+            }
+
+
+
+            GO = deltaList.ToArray();
+
+
+
+
+            Debug.Log("GO COUNT:   " + GO.Count());
+
+            dungeonRooms.Clear();
+            foreach (var g in GO)
+            {
+                dungeonRooms.Add(g.GetComponent<DungeonRoom>());
+            }
+        }
+    }
+
+    //Experimental!!!!!!!
+    IEnumerator SeperateRoom(GameObject TargetRoom)
+    {
+        var Rooms = GameObject.FindGameObjectsWithTag("Gen");
+        int count = 10;
+
+        float zDif = 0;
+        float xDif = 0;
+
+        float moveUp;
+        float moveRight;
+
+        Vector3 targetRoomPos = TargetRoom.transform.position;
+        Vector3 otherRoomPos;
+
+        var TargetRoomSizeZ = TargetRoom.GetComponent<DungeonRoom>().sizeZ;
+        var TargetRoomSizeX = TargetRoom.GetComponent<DungeonRoom>().sizeX;
+
+        while (count > 0)
+        {
+            count = 0;
+            foreach (GameObject room in Rooms)
+            {
+                if (room != TargetRoom)
+                {
+                    if (TargetRoom.GetComponent<BoxCollider>().bounds.Intersects(room.GetComponent<BoxCollider>().bounds))
+                    {
+                        Debug.Log("ASDADSAAAAAA");
+
+                        var RoomSizeZ = room.GetComponent<DungeonRoom>().sizeZ;
+                        var RoomSizeX = room.GetComponent<DungeonRoom>().sizeX;
+
+                        otherRoomPos = room.transform.position;
+                        count++;
+
+                        //get y dist from center
+                        zDif = targetRoomPos.z - otherRoomPos.z;
+                        if(targetRoomPos.z < otherRoomPos.z)
+                        {
+                            zDif = (targetRoomPos.z + TargetRoomSizeZ) - (otherRoomPos.z - RoomSizeZ);
+                            moveUp = -1.0f;   
+                        }
+                        else
+                        {
+                            zDif = (targetRoomPos.z - TargetRoomSizeZ) - (otherRoomPos.z + RoomSizeZ);
+                            moveUp = 1.0f;
+                        }
+
+                        //get x dist from center
+                        //xDif = targetRoomPos.x - otherRoomPos.x;
+                        if (targetRoomPos.x < otherRoomPos.x)
+                        {
+                            xDif = (targetRoomPos.x + TargetRoomSizeX) - (otherRoomPos.x - RoomSizeX);
+                            moveRight = -1.0f;
+                        }
+                        else
+                        {
+                            xDif = (targetRoomPos.x - TargetRoomSizeX) - (otherRoomPos.x + RoomSizeX);
+                            moveRight = 1.0f;
+                        }
+
+                        // move sideways
+                        if (xDif > zDif)
+                        {
+                            TargetRoom.transform.position = new Vector3(
+                                targetRoomPos.x + moveRight,
+                                targetRoomPos.y,
+                                targetRoomPos.z
+                                );
+                        }
+                        //move up
+                        else
+                        {
+                            TargetRoom.transform.position = new Vector3(
+                                    targetRoomPos.x,
+                                    targetRoomPos.y,
+                                    targetRoomPos.z + moveUp
+                                    );
+                        }
+
+                        targetRoomPos = TargetRoom.transform.position;
+                        yield return new WaitForSeconds(waitTime);
+                    }
+                }
+            }
+        }
+    }
+
     private void GenRoomslol()
     {
         for (int i = 0; i < numberOfRooms; i++)
@@ -275,6 +418,10 @@ public class DungeonGenerator : MonoBehaviour {
             DR.sizeZ = Mathf.RoundToInt(delta.y * 2);
             dungeonRooms.Add(DR);
             newFloor.transform.localScale = new Vector3((delta.x * 2) - 0.1f, 1, (delta.y * 2) - 0.1f);
+            //if (singleRoomSeperate)
+            //{
+            //    StartCoroutine(SeperateRoom(newFloor));
+            //}
         }
     }
 
