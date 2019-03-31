@@ -149,7 +149,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1424010486486828}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.535}
+  m_LocalPosition: {x: 0, y: 0, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4665554653147570}
@@ -409,16 +409,16 @@ MonoBehaviour:
   accuracy: 15
   maxGunSpread: 5
   handling: 0.02
-  damage: 5
+  damage: 15
   muzzle: {fileID: 1424010486486828}
   camMask:
     serializedVersion: 2
     m_Bits: 0
   isPlayersGun: 0
-  isLaserGun: 1
-  isSlugGun: 0
-  Bullet: {fileID: 0}
-  SlugSpeed: 0
+  isLaserGun: 0
+  isSlugGun: 1
+  Bullet: {fileID: 1847640892767954, guid: c9cf4909d234fc44bbddbda9409c0e11, type: 2}
+  SlugSpeed: 150
   flash: {fileID: 108157391479891666}
   leftImage: {fileID: 0}
   rightImage: {fileID: 0}

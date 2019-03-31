@@ -2,13 +2,11 @@
 
 public enum GridType {
     floor,
+    floorMain, // for obstacle adding, obstacles cannot go here!
+    floorDoor,
     wall,
-    corridor
-        // add obsticle type as well.
+    corridor,
+    // obsticle types below?????
+    room,
+    minor
 }
-
-//public enum wallType
-//{
-//    poo,
-//    bum
-//}

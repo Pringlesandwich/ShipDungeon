@@ -409,7 +409,7 @@ MonoBehaviour:
   accuracy: 20
   maxGunSpread: 4
   handling: 0.02
-  damage: 15
+  damage: 30
   muzzle: {fileID: 1424010486486828}
   camMask:
     serializedVersion: 2

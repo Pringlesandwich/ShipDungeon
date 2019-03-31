@@ -60,6 +60,9 @@ public class DamageHandler : MonoBehaviour {
 
     private void Update()
     {
+
+        //BAD!!!!!!
+
         deltaOxygen -= Time.deltaTime * oxygenDeplition;
         //oxygen
         try

@@ -516,16 +516,17 @@ MonoBehaviour:
   gridSpacing: 0.5
   minRoomSize: 2
   maxRoomSize: 3
-  numberOfRooms: 20
+  numberOfRooms: 25
   MaxAttempts: 1000
   floor: {fileID: 1069590541891972, guid: 05fa6ff75567a804bb1d18f1abab1c83, type: 2}
+  testObj: {fileID: 1916849532513032, guid: 75999b94669e10548b73f2ecf82e41c4, type: 2}
   strength: 2
   waitTime: 0.02
   iterate: 0
   showLines: 0
   newMat: {fileID: 2100000, guid: 68e3a8437f5dbe5419332589bc00fc7b, type: 2}
   startMat: {fileID: 2100000, guid: 834ce3439063ba848888cbbd25c4bb35, type: 2}
-  strenght2: 11
+  strenght2: 14
   LayoutController: {fileID: 447750817}
   singleRoomSeperate: 0
   maxRooms: 11
@@ -558,6 +559,7 @@ MonoBehaviour:
   testDoor: {fileID: 1103060612156214, guid: cf042ac052e14ab46b1e553387a6cbe8, type: 2}
   testBlock: {fileID: 1667171569714226, guid: ab78c054dc5a78442bdda820047f4f83, type: 2}
   Floor: {fileID: 1764806171123308, guid: 0830790f000ed2f4f909e2727a8e7ed8, type: 2}
+  FloorMain: {fileID: 1647631417618156, guid: e8ac02b6942f9ca4b835ccbb4766e5e3, type: 2}
   Wall: {fileID: 1663004405338600, guid: 361fd85845af9a543b76735518bdef71, type: 2}
   Door: {fileID: 1809245542616232, guid: 3c6e43778924ee847a11a48e9cb0b5a6, type: 2}
   Block: {fileID: 1123916874401520, guid: 0dda49460bc125d44beb87fe757ea3cb, type: 2}

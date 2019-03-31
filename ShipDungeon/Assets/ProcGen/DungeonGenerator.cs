@@ -18,6 +18,8 @@ public class DungeonGenerator : MonoBehaviour {
 
     public GameObject floor;
 
+    public GameObject testObj;
+
     private GameObject[] GO;
     public int strength;
 
@@ -272,7 +274,7 @@ public class DungeonGenerator : MonoBehaviour {
 
     private void MakeMaxRooms()
     {
-        Debug.Log("Make Max Rooms!");
+        //Debug.Log("Make Max Rooms!");
         //get closest room
         Vector3 zero = new Vector3(0, 0, 0);
         GO = GameObject.FindGameObjectsWithTag("Gen");
@@ -289,7 +291,7 @@ public class DungeonGenerator : MonoBehaviour {
                 count++;
                 if(count > maxRooms - 1)
                 {
-                    Debug.Log("DESTORY!!!!");
+                    //Debug.Log("DESTORY!!!!");
                     Destroy(g);
                 }
                 else
@@ -298,14 +300,9 @@ public class DungeonGenerator : MonoBehaviour {
                 }
             }
 
-
-
             GO = deltaList.ToArray();
 
-
-
-
-            Debug.Log("GO COUNT:   " + GO.Count());
+            //Debug.Log("GO COUNT:   " + GO.Count());
 
             dungeonRooms.Clear();
             foreach (var g in GO)
@@ -646,8 +643,12 @@ public class DungeonGenerator : MonoBehaviour {
                 furthestDistance = deltaDistance;
             }      
         }
-        //renderer = selected.GetComponent<Renderer>();
-        //renderer.material = startMat;
+
+        //TESTING
+        Vector3 TestingLol = selected.transform.position;
+        Instantiate(testObj, new Vector3((TestingLol.x * 5.0f), 7.0f, (TestingLol.z * 5.0f)), Quaternion.identity );
+
+
         return selected;
     }
 
@@ -773,6 +774,8 @@ public class DungeonGenerator : MonoBehaviour {
                 allComplete = true;
 
 
+
+                //Trigger method here to set navmesh
 
             }
         }

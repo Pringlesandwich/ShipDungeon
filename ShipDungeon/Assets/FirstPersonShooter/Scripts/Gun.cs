@@ -35,7 +35,6 @@ public class Gun : MonoBehaviour
 
     public bool isPlayersGun = false;
 
-
     //prototype firing methods
     public bool isLaserGun;
     public bool isSlugGun;
@@ -62,6 +61,8 @@ public class Gun : MonoBehaviour
             Debug.Log("MUZZLE NOT SET");
             Debug.Break();
         }
+
+        Bullet.GetComponent<Bullet>().damage = damage;
     }
 
 
