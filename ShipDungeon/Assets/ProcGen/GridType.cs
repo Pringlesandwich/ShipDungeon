@@ -8,5 +8,6 @@ public enum GridType {
     corridor,
     // obsticle types below?????
     room,
-    minor
+    minor,
+    spawnRoom
 }

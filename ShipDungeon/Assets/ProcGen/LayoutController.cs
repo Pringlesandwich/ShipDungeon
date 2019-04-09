@@ -21,6 +21,8 @@ public class LayoutController : MonoBehaviour {
     public GameObject Door;
     public GameObject Block;
 
+    public GameObject SpawnRoom;
+
     public bool iterate = false;
 
 
@@ -48,6 +50,11 @@ public class LayoutController : MonoBehaviour {
         public bool doorSouth;
         public bool doorWest;
 
+        public bool entranceNorth;
+        public bool entranceEast;
+        public bool entranceSouth;
+        public bool entranceWest;
+
         public GridSpace(int id, float _x, float _z, GridType gt) : this()
         {
             ID = id;
@@ -67,6 +74,11 @@ public class LayoutController : MonoBehaviour {
             doorEast = false;
             doorSouth = false;
             doorWest = false;
+
+            entranceNorth = false;
+            entranceEast = false;
+            entranceSouth = false;
+            entranceWest = false;
 
         }
 
@@ -228,7 +240,9 @@ public class LayoutController : MonoBehaviour {
             AddRoomObjects(i);
         }
 
-       
+        
+
+
 
 
         LayGrid();
@@ -635,16 +649,12 @@ public class LayoutController : MonoBehaviour {
 
     public void EnsureMainCorridors(DungeonRoom room)
     {
-        //Debug.Log("Add Room Obstacle");
-        //create a 'walkway' from each door in that room to each other.
-
-       
-
         //foreach space on grid in room, get list of ones near that are doors
         var xPos = room.transform.position.x - ((room.sizeX / 2) + 0.5f);
         var zPos = room.transform.position.z - ((room.sizeZ / 2) + 0.5f);
         var zRestart = zPos;
 
+        //go through each gridspace and see if it is a door, make sure the other side of that door is a mainspace
         for (var x = 0; x < room.sizeX; x++)
         {
             zPos = zRestart;
@@ -688,7 +698,107 @@ public class LayoutController : MonoBehaviour {
                     }
                 }
             }
-        }   
+        } 
+        
+        //if this room is the start room then ensure a path to the spawn point and set it on grid
+        //then add a grid next to it with a special gridtype
+        if(room.isStartRoom)
+        {
+            //choose a side to do this to
+            var x = room.transform.position.x;
+            var z = room.transform.position.z;
+
+            //get positive of values
+            var deltaX = x > 0 ? x : x * -1;
+            var deltaZ = z > 0 ? z : z * -1;
+
+            //var xPos = room.transform.position.x - ((room.sizeX / 2) + 0.5f);
+            //var zPos = room.transform.position.z - ((room.sizeZ / 2) + 0.5f);
+
+            int pos = 0;
+            float useX = 0;
+            float useZ = 0;
+            bool isEast = false;
+            bool isWest = false;
+            bool isNorth = false;
+            bool isSouth = false;
+
+            //use east or west wall
+            if(deltaX > deltaZ)
+            {
+                if(x > 0) //east
+                {
+                    pos = Random.Range(1, room.sizeZ);
+                    useX = room.transform.position.x + ((room.sizeX / 2) + 0.5f);
+                    useZ = (room.transform.position.z - ((room.sizeZ / 2) + 0.5f)) + pos;
+                    isEast = true;
+                }
+                else //west
+                {
+                    pos = Random.Range(1, room.sizeZ);
+                    useX = room.transform.position.x - ((room.sizeX / 2) + 0.5f);
+                    useZ = (room.transform.position.z - ((room.sizeZ / 2) + 0.5f)) + pos;
+                    isWest = true;
+                }
+            }
+            //use north of south wall
+            else
+            {
+                if(z > 0) //north
+                {
+                    pos = Random.Range(1, room.sizeX);
+                    useX = (room.transform.position.x - ((room.sizeX / 2) + 0.5f)) + pos;
+                    useZ = room.transform.position.z + ((room.sizeZ / 2) + 0.5f);
+                    isNorth = true;
+                }
+                else //south
+                {
+                    pos = Random.Range(1, room.sizeX);
+                    useX = (room.transform.position.x - ((room.sizeX / 2) + 0.5f)) + pos;
+                    useZ = room.transform.position.z - ((room.sizeZ / 2) + 0.5f);
+                    isSouth = true;
+                }
+            }
+
+            GridSpace gs = new GridSpace(666, useX, useZ, GridType.spawnRoom);
+            if (isEast)
+            {
+                gs.entranceWest = true;
+                useX = useX - 1;
+                Debug.Log("East");
+            }
+            else if (isWest)
+            {
+                gs.entranceEast = true;
+                useX = useX + 1;
+                Debug.Log("West");
+            }
+            else if (isNorth)
+            {
+                gs.entranceSouth = true;
+                useZ = useZ - 1;
+                Debug.Log("North");
+            }
+            else if (isSouth)
+            {
+                gs.entranceNorth = true;
+                useZ = useZ + 1;
+                Debug.Log("South");
+            }
+
+            theGrid.Add(gs);
+
+            //set the floor next to it as main so a path will be made to it
+            var otherGrid = (from g in theGrid where g.x == useX && g.z == useZ select g).First();
+            otherGrid.setGridType(GridType.floorMain);
+            if (isEast) { otherGrid.wallEast = false; }
+            else if (isWest) { otherGrid.wallWest = false; }
+            else if (isNorth) { otherGrid.wallNorth = false; }
+            else if (isSouth) { otherGrid.wallSouth = false; }
+            theGrid.Remove((from g in theGrid where g.x == useX && g.z == useZ select g).First());
+            theGrid.Add(otherGrid);
+
+        }
     }
 
 
@@ -1107,6 +1217,8 @@ public class LayoutController : MonoBehaviour {
         Vector3 wallPos = new Vector3(0, 0, 0);
         Vector3 doorPos = new Vector3(0, 0, 0);
 
+        Quaternion ceilingQuat = Quaternion.Euler(180f, 0, 0); //for ceiling
+
         var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
         gridHousing.tag = "AllShipMesh";
         foreach (var g in theGrid)
@@ -1127,14 +1239,21 @@ public class LayoutController : MonoBehaviour {
                     //complete = false;
                 }
             }
-            //foorDoor
-            if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.floorMain 
+            //floor
+            if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.floorMain
                 || g.gsSpaceType == GridType.floorDoor || g.gsSpaceType == GridType.corridor)
             {
+                var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
+                newFloor.transform.parent = gridHousing.transform;
+
+                var newCeiling = Instantiate(Floor, new Vector3(X, 5, Z), ceilingQuat);
+                newCeiling.transform.parent = gridHousing.transform;
+
+                // DEBUG
                 //if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.corridor)
                 //{
-                    var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
-                    newFloor.transform.parent = gridHousing.transform;
+                //var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
+                //newFloor.transform.parent = gridHousing.transform;
                 //}
                 //else
                 //{
@@ -1152,12 +1271,12 @@ public class LayoutController : MonoBehaviour {
                 if (g.doorNorth)
                 {
                     var newWall = Instantiate(Door, doorPos, Quaternion.identity);
-                    newWall.transform.parent = gridHousing.transform;
+                    //newWall.transform.parent = gridHousing.transform;
                 }
                 else
                 {
                     var newWall = Instantiate(Wall, wallPos, Quaternion.identity);
-                    newWall.transform.parent = gridHousing.transform;
+                    //newWall.transform.parent = gridHousing.transform;
                 }
             }
 
@@ -1169,12 +1288,12 @@ public class LayoutController : MonoBehaviour {
                 if (g.doorEast)
                 {
                     var newWall = Instantiate(Door, doorPos, rot);
-                    newWall.transform.parent = gridHousing.transform;
+                    //newWall.transform.parent = gridHousing.transform;
                 }
                 else
                 {
                     var newWall = Instantiate(Wall, wallPos, rot);
-                    newWall.transform.parent = gridHousing.transform;
+                    //newWall.transform.parent = gridHousing.transform;
                 }
 
             }
@@ -1189,12 +1308,12 @@ public class LayoutController : MonoBehaviour {
                     if (g.doorSouth)
                     {
                         var newWall = Instantiate(Door, doorPos, Quaternion.identity);
-                        newWall.transform.parent = gridHousing.transform;
+                        //newWall.transform.parent = gridHousing.transform;
                     }
                     else
                     {
                         var newWall = Instantiate(Wall, wallPos, Quaternion.identity);
-                        newWall.transform.parent = gridHousing.transform;
+                        //newWall.transform.parent = gridHousing.transform;
                     }
                 }
             }
@@ -1208,14 +1327,43 @@ public class LayoutController : MonoBehaviour {
                     if (g.doorWest)
                     {
                         var newWall = Instantiate(Door, doorPos, rot);
-                        newWall.transform.parent = gridHousing.transform;
+                        //newWall.transform.parent = gridHousing.transform;
                     }
                     else
                     {
                         var newWall = Instantiate(Wall, wallPos, rot);
-                        newWall.transform.parent = gridHousing.transform;
+                        //newWall.transform.parent = gridHousing.transform;
                     }
                 }
+            }
+
+            //spawn room
+            if (g.gsSpaceType == GridType.spawnRoom)
+            {
+                var spawnRoom = new GameObject();
+
+                //SpawnRoom
+                if (g.entranceEast)
+                {
+                    Quaternion quat = Quaternion.Euler(0, 90f, 0);
+                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                }
+                else if(g.entranceWest)
+                {
+                    Quaternion quat = Quaternion.Euler(0, 270f, 0);
+                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                }
+                else if(g.entranceNorth)
+                {
+                    Quaternion quat = Quaternion.Euler(0, 0, 0);
+                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                }
+                else if( g.entranceSouth)
+                {
+                    Quaternion quat = Quaternion.Euler(0, 180f, 0);
+                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                }
+                //spawnRoom.transform.parent = gridHousing.transform;
             }
 
         }

@@ -646,8 +646,9 @@ public class DungeonGenerator : MonoBehaviour {
 
         //TESTING
         Vector3 TestingLol = selected.transform.position;
-        Instantiate(testObj, new Vector3((TestingLol.x * 5.0f), 7.0f, (TestingLol.z * 5.0f)), Quaternion.identity );
+        //Instantiate(testObj, new Vector3((TestingLol.x * 5.0f), 7.0f, (TestingLol.z * 5.0f)), Quaternion.identity );
 
+        selected.GetComponent<DungeonRoom>().SetAsStartRoom();
 
         return selected;
     }

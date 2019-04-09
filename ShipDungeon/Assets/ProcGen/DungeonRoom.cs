@@ -10,7 +10,7 @@ public class DungeonRoom : MonoBehaviour {
     public int sizeZ = 0;
     public bool isMain = false;
     public bool edgesComplete = false;
-
+    public bool isStartRoom = false;
 
     public List<GameObject> branches = new List<GameObject>();
 
@@ -31,6 +31,10 @@ public class DungeonRoom : MonoBehaviour {
         return branches;
     }
 
+    public void SetAsStartRoom()
+    {
+        isStartRoom = true;
+    }
 
 
 
