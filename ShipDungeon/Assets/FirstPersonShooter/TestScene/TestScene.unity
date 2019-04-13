@@ -104,7 +104,7 @@ NavMeshSettings:
     agentSlope: 45
     agentClimb: 0.5
     ledgeDropHeight: 0
-    maxJumpAcrossDistance: 6.5
+    maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
     cellSize: 0.13333334
@@ -11897,6 +11897,11 @@ Prefab:
       propertyPath: gm
       value: 
       objectReference: {fileID: 163818220}
+    - target: {fileID: 224395978479484612, guid: 60da9efcb09996b4994d596fbc37469c,
+        type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 60da9efcb09996b4994d596fbc37469c, type: 2}
   m_IsPrefabAsset: 0

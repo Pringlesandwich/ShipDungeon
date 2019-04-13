@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 
 using UnityEngine.SceneManagement;
-
+//using UnityEngine.AI;
 
 public class LayoutController : MonoBehaviour {
 
@@ -21,85 +21,20 @@ public class LayoutController : MonoBehaviour {
     public GameObject Door;
     public GameObject Block;
 
+    public GameObject SmallEnemy;
+    public GameObject LargeEnemy;
+
     public GameObject SpawnRoom;
+    public GameObject SpawnRoomNoPlayer;
+
+    public GameObject PlaneNavMesh;
+
+    public int minEnemiesPerRoom;
+    public int maxEnemiesPerRoom;
+
+    public bool spawnPlayer;
 
     public bool iterate = false;
-
-
-    //TODO - move this to its own class/struct
-    struct GridSpace {
-
-        public int ID;
-
-        public int roomID;
-
-        public float x, z;
-
-        //GridType is its own Enum
-        public GridType gsSpaceType;
-
-        public bool hasObject;
-
-        public bool wallNorth;
-        public bool wallEast;
-        public bool wallSouth;
-        public bool wallWest;
-
-        public bool doorNorth;    
-        public bool doorEast;
-        public bool doorSouth;
-        public bool doorWest;
-
-        public bool entranceNorth;
-        public bool entranceEast;
-        public bool entranceSouth;
-        public bool entranceWest;
-
-        public GridSpace(int id, float _x, float _z, GridType gt) : this()
-        {
-            ID = id;
-
-            x = _x;
-            z = _z;
-            gsSpaceType = gt;
-
-            hasObject = false;
-
-            wallNorth = false;
-            wallEast = false;
-            wallSouth = false;
-            wallWest = false;
-
-            doorNorth = false;
-            doorEast = false;
-            doorSouth = false;
-            doorWest = false;
-
-            entranceNorth = false;
-            entranceEast = false;
-            entranceSouth = false;
-            entranceWest = false;
-
-        }
-
-        public void setWalls(bool N, bool E, bool S, bool W)
-        {
-            wallNorth = N;
-            wallEast = E;
-            wallSouth = S;
-            wallWest = W;
-        }
-
-        public void setGridType(GridType gt)
-        {
-            gsSpaceType = gt;
-        }
-
-        public void setHasObject(bool delta)
-        {
-            hasObject = delta;
-        }
-    }
 
     List<GridSpace> theGrid = new List<GridSpace>();
 	
@@ -107,7 +42,7 @@ public class LayoutController : MonoBehaviour {
     {
         if (iterate)
         {
-            StartCoroutine(genFloorsTestIterate(_rooms));
+            //StartCoroutine(genFloorsTestIterate(_rooms));
         }
         else
         {
@@ -240,14 +175,20 @@ public class LayoutController : MonoBehaviour {
             AddRoomObjects(i);
         }
 
-        
-
-
-
+        //spawn enemies
+        foreach (var i in _dungeonRooms)
+        {
+            SetSpawnEnemiesInRoom(i);
+        }
 
         LayGrid();
-    } 
 
+        //lay navmesh
+        SetNavMesh();
+
+        SpawnEnemies();
+
+    }
 
     //corridor builder
     public void DigCorridor(DungeonRoom Room1, DungeonRoom Room2)
@@ -464,186 +405,6 @@ public class LayoutController : MonoBehaviour {
                 
             }
         }
-        bool old = false;
-        if (old)
-        {
-
-
-        //    DungeonRoom mainRoom;
-        //    DungeonRoom targetRoom;
-
-        //    Vector3 Room1Pos = Room1.transform.position;
-        //    Vector3 Room2Pos = Room2.transform.position;
-
-
-        //    //get main room - this will half the code I have to do later!
-
-        //    //north
-
-
-
-
-
-
-
-
-        //    mainRoom = Room1;
-        //    targetRoom = Room2;
-
-        //    Vector3 mainPos = mainRoom.transform.position;
-        //    Vector3 targetPos = targetRoom.transform.position;
-
-        //    bool targetNorth = targetPos.z >= mainPos.z;
-        //    bool targetEast = targetPos.x >= mainPos.x;
-
-        //    bool isCollidingNorth = false;
-        //    bool isCollidingEast = false;
-
-        //    bool isCollidingSouth = false;
-        //    bool isCollidingWest = false;
-
-        //    bool needsCorridor = false;
-
-
-        //    //if (targetNorth)
-        //    //{
-        //    //    Debug.Log("main: " + mainRoom.ID + " , pos:" + (mainPos.z + (mainRoom.sizeZ / 2)));// + " , " + mainPos.x);
-        //    //    Debug.Log("target: " + targetRoom.ID + " , pos: " + (targetPos.z - (mainRoom.sizeZ / 2)));// + " , " + targetPos.x);
-        //    //}
-
-
-
-        //    //north colision
-        //    if (targetNorth && ((mainPos.z + ((mainRoom.sizeZ / 2)) == (targetPos.z - (targetRoom.sizeZ / 2)))))
-        //    {
-        //        isCollidingNorth = true;
-        //    }
-        //    else if (targetNorth && (mainPos.z - ((mainRoom.sizeZ / 2)) == (targetPos.z + (targetRoom.sizeZ / 2))))
-        //    {
-        //        isCollidingSouth = true;
-        //    }
-
-
-
-        //    //east collision
-        //    if (targetEast && ((mainPos.x + ((mainRoom.sizeX / 2)) == (targetPos.x - (targetRoom.sizeX / 2)))))
-        //    {
-        //        isCollidingEast = true;
-        //    }
-        //    else if (targetEast && (mainPos.x - ((mainRoom.sizeX / 2)) == (targetPos.x + (targetRoom.sizeX / 2))))
-        //    {
-        //        isCollidingWest = true;
-        //    }
-
-        //    //if (!isCollidingNorth && !isCollidingEast && !isCollidingSouth && !isCollidingWest)
-        //    //{
-        //    //    needsCorridor = true;
-        //    //}
-        //    //else
-        //    //{
-
-        //    int start;
-        //    int finish;
-
-        //    //this else if will make it so it prioritises in this order
-        //    if (isCollidingNorth)
-        //    {
-
-        //        //find a mutual point and make that gridspace have a doorNorth true
-        //        if (targetEast)
-        //        {
-        //            start = Mathf.RoundToInt(targetPos.x - (targetRoom.sizeX / 2));
-        //            finish = Mathf.RoundToInt(mainPos.x + (mainRoom.sizeX / 2));
-        //            //Debug.Log("AADSDA " + (finish - start));
-        //            //test
-        //            if (finish > start)
-        //            {
-        //                var doorPos = (Random.Range(start, finish) + 0.5f);
-        //                var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
-        //                //Debug.Log("Door: " + doorPos + " , zPos: " + zPos);
-        //                var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
-        //                doorSpace.doorNorth = true;
-
-        //                theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
-        //                theGrid.Add(doorSpace);
-
-        //                //Debug.Log("DOOR NORTH");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            start = Mathf.RoundToInt(mainPos.x - (mainRoom.sizeX / 2));
-        //            finish = Mathf.RoundToInt(targetPos.x + (targetRoom.sizeX / 2));
-        //            //Debug.Log("AADSDA " + (finish - start));
-        //            //test
-        //            if (finish > start)
-        //            {
-        //                var doorPos = (Random.Range(start, finish) + 0.5f);
-        //                var zPos = mainPos.z + (((mainRoom.sizeZ / 2) - 1) + 0.5f);
-        //                //var gridID = (from x in theGrid where x.x == doorPos && x.z == zPos select x.ID).First();
-
-        //                var doorSpace = (from x in theGrid where x.x == doorPos && x.z == zPos select x).First();
-        //                doorSpace.doorNorth = true;
-
-        //                theGrid.Remove((from x in theGrid where x.x == doorPos && x.z == zPos select x).First());
-        //                theGrid.Add(doorSpace);
-        //                //doorSpace.doorNorth = true;               
-        //                //Debug.Log("DOOR NORTH");
-        //            }
-        //        }
-        //    }
-
-        //    if (isCollidingEast)
-        //    {
-        //        Debug.Log("CollEast");
-
-        //        //find a mutual point and make that gridspace have a doorNorth true
-        //        if (targetNorth)
-        //        {
-        //            Debug.Log("TargetNorth");
-        //            start = Mathf.RoundToInt(mainPos.z + (mainRoom.sizeZ / 2));
-        //            finish = Mathf.RoundToInt(targetPos.z - (targetRoom.sizeZ / 2));
-        //            if (start > finish)
-        //            {
-        //                var doorPos = (Random.Range(start, finish) + 0.5f);
-        //                var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
-        //                var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
-        //                doorSpace.doorEast = true;
-        //                theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
-        //                theGrid.Add(doorSpace);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Debug.Log("TargetSouth");
-        //            start = Mathf.RoundToInt(targetPos.z + (targetRoom.sizeZ / 2));
-        //            finish = Mathf.RoundToInt(mainPos.z - (mainRoom.sizeZ / 2));
-        //            if (start > finish)
-        //            {
-        //                var doorPos = (Random.Range(start, finish) + 0.5f);
-        //                var xPos = mainPos.x + (((mainRoom.sizeX / 2) + 0) + 0.5f);
-        //                var doorSpace = (from x in theGrid where x.x == xPos && x.z == doorPos select x).First();
-        //                doorSpace.doorEast = true;
-        //                theGrid.Remove((from x in theGrid where x.x == xPos && x.z == doorPos select x).First());
-        //                theGrid.Add(doorSpace);
-        //            }
-        //        }
-        //    }
-        //    //else if (isCollidingSouth)
-        //    //{
-
-        //    //}
-        //    //else if (isCollidingWest)
-        //    //{
-
-        //    //}
-        //    else
-        //    {
-        //        needsCorridor = true;
-        //    }
-        //    //}
-        }
-
     }
 
 
@@ -765,25 +526,25 @@ public class LayoutController : MonoBehaviour {
             {
                 gs.entranceWest = true;
                 useX = useX - 1;
-                Debug.Log("East");
+                //Debug.Log("East");
             }
             else if (isWest)
             {
                 gs.entranceEast = true;
                 useX = useX + 1;
-                Debug.Log("West");
+                //Debug.Log("West");
             }
             else if (isNorth)
             {
                 gs.entranceSouth = true;
                 useZ = useZ - 1;
-                Debug.Log("North");
+                //Debug.Log("North");
             }
             else if (isSouth)
             {
                 gs.entranceNorth = true;
                 useZ = useZ + 1;
-                Debug.Log("South");
+                //Debug.Log("South");
             }
 
             theGrid.Add(gs);
@@ -1054,162 +815,82 @@ public class LayoutController : MonoBehaviour {
     }
 
 
-
-    //THESE BELOW WILL BE REMOVED AND DONE ELSEWHERE?????????
-
-    //THIS IS OLD AND WONT WORK
-    IEnumerator genFloorsTestIterate(List<DungeonRoom> _dungeonRooms)
+    private void SetSpawnEnemiesInRoom(DungeonRoom room)
     {
-        //bool isFirstX;
-        //bool isFirstZ;
-        //bool isLastX;
-        //bool isLastZ;
 
-        float xStart;
-        float zStart;
+        //random range from min to max enemies
+        int noOfEnemies = Random.Range(minEnemiesPerRoom, maxEnemiesPerRoom);
 
-        var gridHousing = Instantiate(new GameObject(), new Vector3(0,0,0), Quaternion.identity);
+        int enemyCount = 0;
 
-        //GridSpace gs;
+        float deltaX = 0;
+        float deltaZ = 0;
 
-        foreach (var i in _dungeonRooms)
+        float roomXMin;
+        float roomXMax;
+        float roomZMin;
+        float roomZMax;
+
+        roomXMin = room.transform.position.x - ((room.sizeX / 2) - 0.5f);
+        roomZMin = room.transform.position.z - ((room.sizeZ / 2) - 0.5f);
+        roomXMax = roomXMin + room.sizeX;
+        roomZMax = roomZMin + room.sizeZ;
+
+        //do x times, or until room has set noOfEnemies
+        for (var i = 0; i < 50; i++)
         {
-            xStart = i.transform.position.x - ((i.sizeX / 2) + 0.5f);
-            zStart = i.transform.position.z - ((i.sizeZ / 2) + 0.5f);
-            var zRestart = zStart;
-            for (var x = 0; x < i.sizeX; x++)
-            {
-                xStart = xStart + 1;
-                zStart = zRestart;
-                for (var z = 0; z < i.sizeZ; z++)
+            //get random space within room 
+            int randomX = Random.Range(0, room.sizeX);
+            int randomZ = Random.Range(0, room.sizeZ);
+            deltaX = roomXMin + randomX;
+            deltaZ = roomZMin + randomZ;
+
+            //see if grid exists and has no object!
+            if (CanPlaceEnemy(deltaX, deltaZ))
+            {              
+                if(Random.Range(0,10) > 7) // 30% chance enemy is large?????
                 {
-                    zStart = zStart + 1;
-
-                    //gs = new GridSpace(Mathf.RoundToInt(xStart), Mathf.RoundToInt(zStart), GridType.floor);
-
-                    var newFloor = Instantiate(testFloor, new Vector3(xStart, .75f, zStart), Quaternion.identity);
-                    newFloor.transform.parent = gridHousing.transform;
-
-                    yield return new WaitForSeconds(0.00f);
+                    var deltaGrid = (from x in theGrid where x.x == deltaX && x.z == deltaZ select x).First();
+                    deltaGrid.setHasLargeEnemy(true);
+                    theGrid.Remove((from x in theGrid where x.x == deltaX && x.z == deltaZ select x).First());
+                    theGrid.Add(deltaGrid);
+                    enemyCount++;
+                    //Debug.Log("SET Large ENEMY TO SPAWN!");
                 }
-            }           
+                else
+                {
+                    var deltaGrid = (from x in theGrid where x.x == deltaX && x.z == deltaZ select x).First();
+                    deltaGrid.setHasSmallEnemy(true);
+                    theGrid.Remove((from x in theGrid where x.x == deltaX && x.z == deltaZ select x).First());
+                    theGrid.Add(deltaGrid);
+                    enemyCount++;
+                    //Debug.Log("SET Small ENEMY TO SPAWN!");
+                }
+            }
+
+            if (enemyCount >= noOfEnemies)
+            {
+                break;
+            }
         }
     }
 
-    // not used
-    //private void LayTestGrid()
-    //{
-    //    var rot = Quaternion.Euler(0, 90, 0);
-    //    Vector3 wallPos = new Vector3(0, 0, 0);
-
-    //    var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
-    //    foreach (var g in theGrid)
-    //    {
-
-    //        bool complete = true;
-
-    //        if (g.hasObject && (!g.doorNorth && !g.doorEast && !g.doorSouth && !g.doorWest))
-    //        {
-    //            //check if door below or to left
-    //            if ((theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)) || (theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
-    //            {
-    //                Debug.Log("DOOR IN WAY!!!!");
-    //            }
-    //            else
-    //            {
-    //                //LAY OBJECT HERE!!!
-    //                var newBlock = Instantiate(testBlock, new Vector3(g.x, 1.25f, g.z), Quaternion.identity);
-    //                newBlock.transform.parent = gridHousing.transform;
-    //                //complete = false;
-    //            }
-    //        }
-    //        else
-    //        {
-
-    //        }
-    //        if (complete)
-    //        { 
-    //            if (g.gsSpaceType == GridType.floor)
-    //            {
-    //                var newFloor = Instantiate(testFloor, new Vector3(g.x, .75f, g.z), Quaternion.identity);
-    //                newFloor.transform.parent = gridHousing.transform;
-    //            }
-
-    //            //bool createWall = false;
-    //            //TEST
-    //            if (g.wallNorth || g.doorNorth)
-    //            {
-    //                wallPos = new Vector3(g.x, 1.25f, g.z + 0.5f);
-    //                if (g.doorNorth)
-    //                {
-    //                    var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
-    //                    newWall.transform.parent = gridHousing.transform;
-    //                }
-    //                else
-    //                {
-    //                    var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
-    //                    newWall.transform.parent = gridHousing.transform;
-    //                }
-    //            }
-
-    //            if (g.wallEast || g.doorEast)
-    //            {
-
-    //                wallPos = new Vector3(g.x + 0.5f, 1.25f, g.z);
-    //                if (g.doorEast)
-    //                {
-    //                    var newWall = Instantiate(testDoor, wallPos, rot);
-    //                    newWall.transform.parent = gridHousing.transform;
-    //                }
-    //                else
-    //                {
-    //                    var newWall = Instantiate(testWall, wallPos, rot);
-    //                    newWall.transform.parent = gridHousing.transform;
-    //                }
-
-    //            }
-    //            if (g.doorSouth || g.wallSouth)
-    //            {
-    //                //createWall = true;
-    //                if (!(theGrid.Any(x => x.x == g.x && x.z == g.z - 1 && x.wallNorth)))
-    //                {
-    //                    wallPos = new Vector3(g.x, 1.25f, g.z - 0.5f);
-    //                    //Debug.Log(g.doorSouth);
-    //                    if (g.doorSouth)
-    //                    {
-    //                        var newWall = Instantiate(testDoor, wallPos, Quaternion.identity);
-    //                        newWall.transform.parent = gridHousing.transform;
-    //                    }
-    //                    else
-    //                    {
-    //                        var newWall = Instantiate(testWall, wallPos, Quaternion.identity);
-    //                        newWall.transform.parent = gridHousing.transform;
-    //                    }
-    //                }
-    //            }
-    //            if (g.doorWest || g.wallWest)
-    //            {
-    //                //createWall = true;
-    //                if (!(theGrid.Any(x => x.x == g.x - 1 && x.z == g.z && x.wallEast)))
-    //                {
-    //                    wallPos = new Vector3(g.x - 0.5f, 1.25f, g.z);
-    //                    if (g.doorWest)
-    //                    {
-    //                        var newWall = Instantiate(testDoor, wallPos, rot);
-    //                        newWall.transform.parent = gridHousing.transform;
-    //                    }
-    //                    else
-    //                    {
-    //                        var newWall = Instantiate(testWall, wallPos, rot);
-    //                        newWall.transform.parent = gridHousing.transform;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
-    //used
+    private bool CanPlaceEnemy(float x, float z)
+    {
+        try
+        {
+            var Grid = (from g in theGrid where g.x == x && g.z == z select g).First();
+            var type = Grid.gsSpaceType;
+            if((type == GridType.floorMain || type == GridType.floor || type == GridType.floorDoor)
+                && !Grid.hasLargeEnemy && !Grid.hasSmallEnemy)
+            { return true; }
+            else { return false; }
+        }
+        catch
+        {
+            return false; // return false if not exist so wont try an place
+        }
+    }
 
     private void LayGrid()
     {
@@ -1239,6 +920,7 @@ public class LayoutController : MonoBehaviour {
                     //complete = false;
                 }
             }
+
             //floor
             if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.floorMain
                 || g.gsSpaceType == GridType.floorDoor || g.gsSpaceType == GridType.corridor)
@@ -1346,26 +1028,53 @@ public class LayoutController : MonoBehaviour {
                 if (g.entranceEast)
                 {
                     Quaternion quat = Quaternion.Euler(0, 90f, 0);
-                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                    if (spawnPlayer) { spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat); }
+                    else { spawnRoom = Instantiate(SpawnRoomNoPlayer, new Vector3(X, 0, Z), quat); }
                 }
                 else if(g.entranceWest)
                 {
                     Quaternion quat = Quaternion.Euler(0, 270f, 0);
-                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                    if (spawnPlayer) { spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat); }
+                    else { spawnRoom = Instantiate(SpawnRoomNoPlayer, new Vector3(X, 0, Z), quat); }
                 }
                 else if(g.entranceNorth)
                 {
                     Quaternion quat = Quaternion.Euler(0, 0, 0);
-                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                    if (spawnPlayer) { spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat); }
+                    else { spawnRoom = Instantiate(SpawnRoomNoPlayer, new Vector3(X, 0, Z), quat); }
                 }
                 else if( g.entranceSouth)
                 {
                     Quaternion quat = Quaternion.Euler(0, 180f, 0);
-                    spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat);
+                    if (spawnPlayer) { spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat); }
+                    else { spawnRoom = Instantiate(SpawnRoomNoPlayer, new Vector3(X, 0, Z), quat); }
                 }
                 //spawnRoom.transform.parent = gridHousing.transform;
             }
 
+        }
+    }
+
+    private void SetNavMesh()
+    {
+
+        
+
+    }
+
+    private void SpawnEnemies()
+    {
+        var spawnLocations = theGrid.Where(x => x.hasSmallEnemy == true || x.hasLargeEnemy == true).ToList();
+        foreach (var i in spawnLocations)
+        {
+            if(i.hasLargeEnemy)
+            {
+                Instantiate(LargeEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(SmallEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+            }
         }
     }
 }

@@ -34,7 +34,6 @@ public class DungeonGenerator : MonoBehaviour {
     public Material newMat;
     public Material startMat;
 
-    public int strenght2;
     private bool DTTime = false;
 
     private DTController theDTController = new DTController();
@@ -130,56 +129,6 @@ public class DungeonGenerator : MonoBehaviour {
     }
 
     List<Branch> branches = new List<Branch>();
-
-    //not used
-    private void DelaunayTriangulation()
-    {
-        Vector3 A = new Vector3();
-        Vector3 B = new Vector3();
-        int i = -1;
-        foreach(var a in GO)
-        {
-            i++;
-            Branch branch = new Branch();
-            branch.SetID(i);
-            foreach (var b in GO)
-            {
-                if (a != b)
-                {
-                    foreach (var c in GO)
-                    {
-                        if (b != c)
-                        {
-                            if (a != c)
-                            {
-                                //make a triangle with these 3
-
-                                //get the center
-
-                                //get distance to a
-
-                                //foreach
-
-                            }
-                        }
-                    }
-                }
-            }
-            branches.Add(branch);
-        }
-        foreach(var b in branches)
-        {
-            //shoot a ray from it main to each connection
-        }
-
-
-        //for each GO
-
-            //create a triangle with 2 other GOs
-
-
-
-    }
 
     IEnumerator GenRooms()
     {
