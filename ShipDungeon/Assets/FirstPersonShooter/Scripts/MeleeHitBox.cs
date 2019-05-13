@@ -12,7 +12,7 @@ public class MeleeHitBox : MonoBehaviour {
         //if not player and has damage thing
         if (other.GetComponent<DamageHandler>() && other.gameObject.tag != "Player")
         {
-            Debug.Log("Added: " + other.gameObject.name);
+            //Debug.Log("Added: " + other.gameObject.name);
             targets.Add(other.gameObject);
         }
         //add to list

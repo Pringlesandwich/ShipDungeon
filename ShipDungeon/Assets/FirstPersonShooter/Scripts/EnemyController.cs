@@ -11,6 +11,8 @@ public class EnemyController : FPSController {
     public float maxDistance;
     public float minDistance;
 
+    public int RoomID;
+
     public bool isAgro = false;
 
     private bool isStunned = false;
@@ -46,7 +48,11 @@ public class EnemyController : FPSController {
 
     // Use this for initialization
     void Start() {
-        target = PlayerManager.instance.player.transform;
+        //target = PlayerManager.instance.player.transform;
+
+        target = GameObject.FindGameObjectWithTag("Player").transform;
+
+
         agent = GetComponent<NavMeshAgent>();
         cam = GetComponentInChildren<Camera>();
         gun = GetComponentInChildren<Gun>();
@@ -72,6 +78,7 @@ public class EnemyController : FPSController {
             {
                 //Debug.Log("MOVE IN!");
                 agent.SetDestination(target.position);
+                //Debug.Log(target.position);
             }
             //if too close run away
             else if (distance < minDistance && !isStunned)
@@ -97,7 +104,7 @@ public class EnemyController : FPSController {
         {
             if (agent != null)
             {
-                isAgro = true;
+                //isAgro = true;
             }
         }
 
@@ -225,5 +232,20 @@ public class EnemyController : FPSController {
         Gizmos.DrawWireSphere(transform.position, lookRadius);
     }
 
+    public void SetRoomID(int roomID)
+    {
+        RoomID = roomID;
+    }
+
+    public int GetRoomID()
+    {
+        return RoomID;
+    }
+
+    public void SetAgro()
+    {
+        //Debug.Log("Set Agro");
+        isAgro = true;
+    }
 
 }

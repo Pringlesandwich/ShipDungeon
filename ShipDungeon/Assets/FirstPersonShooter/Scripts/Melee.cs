@@ -49,7 +49,7 @@ public class Melee : MonoBehaviour {
 
         List<GameObject> hitTargets = meleeBox.GetTargets();
 
-        Debug.Log("hitTargets : " + hitTargets.Count);
+        //Debug.Log("hitTargets : " + hitTargets.Count);
 
         DamageHandler DH;
 

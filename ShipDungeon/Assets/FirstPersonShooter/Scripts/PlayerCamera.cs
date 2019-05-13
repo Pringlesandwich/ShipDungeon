@@ -83,6 +83,17 @@ public class PlayerCamera : MonoBehaviour {
                     {
                         a.Play();
                     }
+                    //Test
+                    try
+                    {
+                        //var comp = hit.transform.gameObject.GetComponent<RoomIDTrigger>();
+                        door.GetComponent<RoomIDTrigger>().TriggerAllIDs();
+                        //Debug.Log("WIN");
+                        //comp.TriggerAllIDs();
+                    }
+                    catch {
+                        //Debug.Log("FAIL");
+                    }
                 }
             }
             else if (hit.transform.gameObject.tag == "Treasure")

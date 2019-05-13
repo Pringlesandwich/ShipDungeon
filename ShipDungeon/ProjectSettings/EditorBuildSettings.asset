@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/FirstPersonShooter/TestScene/TestScene.unity
     guid: c42cbf48dec5d1d4b9ae6ab6af4e0ba3
+  - enabled: 1
+    path: Assets/ProcGen/ShipGenTest.unity
+    guid: 8d2dd4ee2158c7143a8e16adadb0f9f4
   m_configObjects: {}

@@ -128,8 +128,6 @@ public class DungeonGenerator : MonoBehaviour {
         }
     }
 
-    List<Branch> branches = new List<Branch>();
-
     IEnumerator GenRooms()
     {
         for (int i = 0; i < numberOfRooms; i++)
@@ -209,7 +207,7 @@ public class DungeonGenerator : MonoBehaviour {
             }
             if (count == 0)
             {
-                Debug.Log("WOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                //Debug.Log("WOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 allRoomsWorking = true;
                 break;
             }
@@ -288,7 +286,6 @@ public class DungeonGenerator : MonoBehaviour {
                 {
                     if (TargetRoom.GetComponent<BoxCollider>().bounds.Intersects(room.GetComponent<BoxCollider>().bounds))
                     {
-                        Debug.Log("ASDADSAAAAAA");
 
                         var RoomSizeZ = room.GetComponent<DungeonRoom>().sizeZ;
                         var RoomSizeX = room.GetComponent<DungeonRoom>().sizeX;
@@ -357,7 +354,7 @@ public class DungeonGenerator : MonoBehaviour {
             int x = RoundToGrid(delta.x, gridSpacing);
             int y = RoundToGrid(delta.y, gridSpacing);
             delta = GetRandomRoomSize();
-            var newFloor = Instantiate(floor, new Vector3(x, 0, y), Quaternion.identity);
+            var newFloor = Instantiate(floor, new Vector3(x, -20, y), Quaternion.identity); //-20 as navmesh gens on these and creates bumps
             DungeonRoom DR = newFloor.GetComponent<DungeonRoom>();
             DR.ID = i +1; // set id (from 0+1)
             DR.sizeX = Mathf.RoundToInt(delta.x * 2);
@@ -526,7 +523,7 @@ public class DungeonGenerator : MonoBehaviour {
         }
         while (count > 0 || saftey <= 0);
         //Debug.Log("saftey: " + saftey + " Count " + count);
-        Debug.Log("Remove Count: " + removeCount);
+        //Debug.Log("Remove Count: " + removeCount);
     }
 
     private void ColourMainRooms()
@@ -602,8 +599,8 @@ public class DungeonGenerator : MonoBehaviour {
         return selected;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    void FixedUpdate()
     {
 
 

@@ -72,6 +72,7 @@ GameObject:
   - component: {fileID: 4945984573279108}
   - component: {fileID: 20490525535381840}
   - component: {fileID: 81031726985776252}
+  - component: {fileID: 114701395062407042}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -529,12 +530,12 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_RenderingPath: -1
+  m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -1076,6 +1077,18 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+--- !u!114 &114701395062407042
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1195647158057580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: b2cc0e3f694820742906742c65fdea7a, type: 2}
 --- !u!114 &114722801433769834
 MonoBehaviour:
   m_ObjectHideFlags: 1

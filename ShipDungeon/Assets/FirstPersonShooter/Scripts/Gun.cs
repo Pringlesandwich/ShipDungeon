@@ -62,7 +62,7 @@ public class Gun : MonoBehaviour
             Debug.Break();
         }
 
-        Bullet.GetComponent<Bullet>().damage = damage;
+        try { Bullet.GetComponent<Bullet>().damage = damage; } catch { }
     }
 
 

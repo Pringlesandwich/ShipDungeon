@@ -19,14 +19,13 @@ public class FPSGameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-
         if(Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene("TestScene");
+            SceneManager.LoadScene("ShipGenTest");
         }
         if (Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            SceneManager.LoadScene("TestScene");
+            SceneManager.LoadScene("ShipGenTest");
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -36,17 +35,14 @@ public class FPSGameManager : MonoBehaviour {
         {
             runTimer -= Time.deltaTime;
             float displayTime = runTimer;
-            int fuck = Mathf.RoundToInt(displayTime);
-            countdown.text = "RUN BACK TO START! " + fuck;
+            int test = Mathf.RoundToInt(displayTime);
+            countdown.text = "RUN BACK TO START! " + test;
             if (runTimer < 0)
             {
                 pc.Kill();
                 runTimer = 0;
             }
         }
-
-
-
     }
 
     public void Run()

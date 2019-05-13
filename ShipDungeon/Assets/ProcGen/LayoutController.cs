@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 
 using UnityEngine.SceneManagement;
-//using UnityEngine.AI;
+using UnityEngine.AI;
 
 public class LayoutController : MonoBehaviour {
 
@@ -32,12 +32,17 @@ public class LayoutController : MonoBehaviour {
     public int minEnemiesPerRoom;
     public int maxEnemiesPerRoom;
 
+    private int startRoomID;
+
     public bool spawnPlayer;
 
     public bool iterate = false;
 
     List<GridSpace> theGrid = new List<GridSpace>();
-	
+
+    public List<GameObject> enemyList = new List<GameObject>();
+    private List<int> triggeredRoomIDs = new List<int>(); //for efficiency
+
     public void setRooms(List<DungeonRoom> _rooms)
     {
         if (iterate)
@@ -175,16 +180,13 @@ public class LayoutController : MonoBehaviour {
             AddRoomObjects(i);
         }
 
+        LayGrid(); //THIS USUALLY COMES AFTER SPAWNING ENEMIES!!!!
+
         //spawn enemies
         foreach (var i in _dungeonRooms)
         {
             SetSpawnEnemiesInRoom(i);
         }
-
-        LayGrid();
-
-        //lay navmesh
-        SetNavMesh();
 
         SpawnEnemies();
 
@@ -465,6 +467,9 @@ public class LayoutController : MonoBehaviour {
         //then add a grid next to it with a special gridtype
         if(room.isStartRoom)
         {
+            //set StartRoomID for later trigger
+            startRoomID = room.ID;
+
             //choose a side to do this to
             var x = room.transform.position.x;
             var z = room.transform.position.z;
@@ -882,7 +887,7 @@ public class LayoutController : MonoBehaviour {
             var Grid = (from g in theGrid where g.x == x && g.z == z select g).First();
             var type = Grid.gsSpaceType;
             if((type == GridType.floorMain || type == GridType.floor || type == GridType.floorDoor)
-                && !Grid.hasLargeEnemy && !Grid.hasSmallEnemy)
+                && !Grid.hasLargeEnemy && !Grid.hasSmallEnemy && !Grid.hasObject)
             { return true; }
             else { return false; }
         }
@@ -902,8 +907,14 @@ public class LayoutController : MonoBehaviour {
 
         var gridHousing = Instantiate(new GameObject(), new Vector3(0, 0, 0), Quaternion.identity);
         gridHousing.tag = "AllShipMesh";
+
+        bool objectPlaced = false;
+
         foreach (var g in theGrid)
         {
+
+            objectPlaced = false;
+
             var X = g.x * 5;
             var Z = g.z * 5;
 
@@ -918,30 +929,22 @@ public class LayoutController : MonoBehaviour {
                     var newBlock = Instantiate(Block, new Vector3(X, 2.5f, Z), Quaternion.identity);
                     newBlock.transform.parent = gridHousing.transform;
                     //complete = false;
+                    objectPlaced = true;
                 }
             }
 
             //floor
-            if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.floorMain
-                || g.gsSpaceType == GridType.floorDoor || g.gsSpaceType == GridType.corridor)
+            if ((g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.floorMain
+                || g.gsSpaceType == GridType.floorDoor || g.gsSpaceType == GridType.corridor))
             {
-                var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
-                newFloor.transform.parent = gridHousing.transform;
+                if (!objectPlaced)
+                {
+                    var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
+                    newFloor.transform.parent = gridHousing.transform;
 
-                var newCeiling = Instantiate(Floor, new Vector3(X, 5, Z), ceilingQuat);
-                newCeiling.transform.parent = gridHousing.transform;
-
-                // DEBUG
-                //if (g.gsSpaceType == GridType.floor || g.gsSpaceType == GridType.corridor)
-                //{
-                //var newFloor = Instantiate(Floor, new Vector3(X, 0, Z), Quaternion.identity);
-                //newFloor.transform.parent = gridHousing.transform;
-                //}
-                //else
-                //{
-                //    var newFloor = Instantiate(FloorMain, new Vector3(X, 0, Z), Quaternion.identity);
-                //    newFloor.transform.parent = gridHousing.transform;
-                //}          
+                    var newCeiling = Instantiate(Floor, new Vector3(X, 5, Z), ceilingQuat);
+                    newCeiling.transform.parent = gridHousing.transform;
+                }
             }
 
             //bool createWall = false;
@@ -952,8 +955,8 @@ public class LayoutController : MonoBehaviour {
                 doorPos = new Vector3(X, 0, Z + 2.5f);
                 if (g.doorNorth)
                 {
-                    var newWall = Instantiate(Door, doorPos, Quaternion.identity);
-                    //newWall.transform.parent = gridHousing.transform;
+                    var door = Instantiate(Door, doorPos, Quaternion.identity);
+                    SetupDoor(door, g);
                 }
                 else
                 {
@@ -969,8 +972,8 @@ public class LayoutController : MonoBehaviour {
                 doorPos = new Vector3(X + 2.5f, 0, Z);
                 if (g.doorEast)
                 {
-                    var newWall = Instantiate(Door, doorPos, rot);
-                    //newWall.transform.parent = gridHousing.transform;
+                    var door = Instantiate(Door, doorPos, rot);
+                    SetupDoor(door, g);
                 }
                 else
                 {
@@ -989,8 +992,8 @@ public class LayoutController : MonoBehaviour {
                     //Debug.Log(g.doorSouth);
                     if (g.doorSouth)
                     {
-                        var newWall = Instantiate(Door, doorPos, Quaternion.identity);
-                        //newWall.transform.parent = gridHousing.transform;
+                        var door = Instantiate(Door, doorPos, Quaternion.identity);
+                        SetupDoor(door, g);
                     }
                     else
                     {
@@ -1008,8 +1011,8 @@ public class LayoutController : MonoBehaviour {
                     doorPos = new Vector3(X - 2.5f, 0, Z);
                     if (g.doorWest)
                     {
-                        var newWall = Instantiate(Door, doorPos, rot);
-                        //newWall.transform.parent = gridHousing.transform;
+                        var door = Instantiate(Door, doorPos, rot);
+                        SetupDoor(door, g);
                     }
                     else
                     {
@@ -1049,18 +1052,69 @@ public class LayoutController : MonoBehaviour {
                     if (spawnPlayer) { spawnRoom = Instantiate(SpawnRoom, new Vector3(X, 0, Z), quat); }
                     else { spawnRoom = Instantiate(SpawnRoomNoPlayer, new Vector3(X, 0, Z), quat); }
                 }
+                //
+                SetupDoor(spawnRoom, g);
                 //spawnRoom.transform.parent = gridHousing.transform;
             }
 
         }
+
+        var NavFloor = Instantiate(Floor, new Vector3(0, -2, 0), Quaternion.identity);
+        NavFloor.transform.parent = gridHousing.transform;
+
+        var baker = new NavMeshBaker();
+        var surface = NavFloor.AddComponent<NavMeshSurface>();
+        // baker.addToSurfaceList(surface);
+        baker.BakeNavMesh(surface);
     }
 
-    private void SetNavMesh()
+
+    private void SetupDoor(GameObject door, GridSpace g)
     {
+        //if (!door.GetComponent<RoomIDTrigger>())
+        //{
+        var roomIDTrigger = door.AddComponent<RoomIDTrigger>();
+        roomIDTrigger.SetLayoutControllerReference(this);
 
-        
+        var roomIDs = new List<int>();
 
+        //find room IDs either side of door
+        //find room ids from z + and -
+        if (g.doorSouth || g.doorNorth)
+        {
+            if (theGrid.Any(x => x.x == g.x && x.z == g.z - 1))
+            {
+                var deltaGrid = theGrid.Where(x => x.x == g.x && x.z == g.z - 1).First();
+                roomIDs.Add(deltaGrid.roomID);
+            }
+            if (theGrid.Any(x => x.x == g.x && x.z == g.z + 1))
+            {
+                var deltaGrid = theGrid.Where(x => x.x == g.x && x.z == g.z + 1).First();
+                roomIDs.Add(deltaGrid.roomID);
+            }
+        }
+        //find room ids from x + and -
+        else
+        {
+            if (theGrid.Any(x => x.x == g.x - 1 && x.z == g.z))
+            {
+                var deltaGrid = theGrid.Where(x => x.x == g.x - 1 && x.z == g.z).First();
+                roomIDs.Add(deltaGrid.roomID);
+            }
+            if (theGrid.Any(x => x.x == g.x + 1 && x.z == g.z))
+            {
+                var deltaGrid = theGrid.Where(x => x.x == g.x + 1 && x.z == g.z).First();
+                roomIDs.Add(deltaGrid.roomID);
+            }
+        }
+
+        foreach (var i in roomIDs)
+        {
+            roomIDTrigger.addRoomID(i);
+        }
+        //}
     }
+
 
     private void SpawnEnemies()
     {
@@ -1069,12 +1123,35 @@ public class LayoutController : MonoBehaviour {
         {
             if(i.hasLargeEnemy)
             {
-                Instantiate(LargeEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+                var enemy = Instantiate(LargeEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+                enemy.GetComponent<EnemyController>().SetRoomID(i.roomID);
+                enemyList.Add(enemy);
             }
             else
             {
-                Instantiate(SmallEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+                var enemy = Instantiate(SmallEnemy, new Vector3((i.x * 5), 0, (i.z * 5)), Quaternion.identity);
+                enemy.GetComponent<EnemyController>().SetRoomID(i.roomID);
+                enemyList.Add(enemy);
+
             }
         }
     }
+
+    //THIS IS SLOW AF CODE BUT I DONT CARE!!!!!!!!!
+    public void SetEnemyAgroByRoomID(int roomID)
+    {
+        //if none exist already
+        if (!triggeredRoomIDs.Where(x => x == roomID).Any())
+        {
+            foreach (var i in enemyList)
+            {
+                if (i.GetComponent<EnemyController>().GetRoomID() == roomID)
+                {
+                    i.GetComponent<EnemyController>().SetAgro();
+                }
+                triggeredRoomIDs.Add(roomID);
+            }
+        }
+    }
+
 }
